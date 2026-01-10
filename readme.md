@@ -16,7 +16,7 @@ For example, a config with [pnpm](https://pnpm.io) and
 ```lua
 require('lazy').setup {
     {
-        'barrett-ruth/live-server.nvim',
+        'barrettruth/live-server.nvim',
         build = 'pnpm add -g live-server',
         cmd = { 'LiveServerStart', 'LiveServerStop' },
         config = true

@@ -125,4 +125,15 @@ function M.toggle(dir)
   end
 end
 
+---@deprecated Use `vim.g.live_server` instead
+function M.setup(user_config)
+  vim.deprecate('require("live-server").setup()', 'vim.g.live_server', '2.0.0', 'live-server.nvim')
+
+  if user_config then
+    vim.g.live_server = vim.tbl_deep_extend('force', vim.g.live_server or {}, user_config)
+  end
+
+  init()
+end
+
 return M

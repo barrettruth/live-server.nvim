@@ -1,7 +1,7 @@
-*live-server* *live-server.txt*
+live-server                                                    *live-server.txt*
 
 Author: Barrett Ruth <https://barrettruth.com>
-Homepage: <https://github.com/barrett-ruth/live-server.nvim>
+Homepage: <https://github.com/barrettruth/live-server.nvim>
 
 ===============================================================================
 INTRODUCTION                                                 *live-server.nvim*
@@ -9,45 +9,35 @@ INTRODUCTION                                                 *live-server.nvim*
 live-server.nvim automatically reloads HTML, CSS, and JavaScript files in the
 browser via a local development server.
 
-Author: Barrett Ruth <https://barrett-ruth.github.io>
-
 ===============================================================================
-SETUP                                                     *live-server.setup()*
->lua
-    require('live-server').setup(config)
-<
-Parameters: ~
+CONFIGURATION                                             *live-server.config*
 
-    {config} `(table | nil)`: (Optional) table containing configuration for
-                            live-server. Defaults shown below.
-
-Usage: ~
+Configure via `vim.g.live_server` before the plugin loads:
 >lua
-    require('live-server').setup {
-        -- Arguments passed to live-server via `vim.fn.jobstart()`
-        -- Run `live-server --help` to see list of available options
-        -- For example, to use port 7000 and browser firefox:
-        -- args = { '--port=7000', '--browser=firefox' }
-        args = {}
+    vim.g.live_server = {
+        args = { '--port=5555' },
     }
 <
+Options: ~
+
+    {args}  `(string[])`: Arguments passed to live-server via `vim.fn.jobstart()`.
+                        Run `live-server --help` to see available options.
+                        Default: { '--port=5555' }
+
 ===============================================================================
 COMMANDS                                                 *live-server.commands*
 
-                                                *LiveServerStart*
-:LiveServerStart [dir]    Start the live server. If an optional argument `dir` 
-                          is provided, the server will start in the specified 
-                          directory.
+                                                              *LiveServerStart*
+:LiveServerStart [dir]    Start the live server. If `dir` is provided, the
+                          server starts in the specified directory.
 
-                                                *LiveServerStop*
-:LiveServerStop [dir]     Stop the live server. If an optional argument `dir` 
-                          is provided, the server will stop the server running 
-                          in the specified directory.
+                                                               *LiveServerStop*
+:LiveServerStop [dir]     Stop the live server. If `dir` is provided, stops
+                          the server running in the specified directory.
 
-                                                *LiveServerToggle*
-:LiveServerToggle [dir]   Toggle the live server on or off. If an optional 
-                          argument `dir` is provided, the server will be 
-                          toggled in the specified directory.
+                                                             *LiveServerToggle*
+:LiveServerToggle [dir]   Toggle the live server on or off. If `dir` is
+                          provided, toggles the server in that directory.
 
 -------------------------------------------------------------------------------
 vim:tw=80:ft=help:

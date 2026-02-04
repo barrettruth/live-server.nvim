@@ -25,7 +25,10 @@ local function init()
   local user_config = vim.g.live_server or {}
   config = vim.tbl_deep_extend('force', defaults, user_config)
 
-  if not vim.fn.executable('live-server') and not (is_windows() and vim.fn.executable('live-server.cmd')) then
+  if
+    not vim.fn.executable('live-server')
+    and not (is_windows() and vim.fn.executable('live-server.cmd'))
+  then
     log('live-server is not executable. Ensure the npm module is properly installed', 'ERROR')
     return false
   end

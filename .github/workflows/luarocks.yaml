@@ -3,7 +3,7 @@ name: luarocks
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   ci:

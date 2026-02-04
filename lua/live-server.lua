@@ -1,12 +1,19 @@
+---@class live_server.Config
+---@field args string[]
+
 local M = {}
 
 local initialized = false
+
+---@type table<string, integer>
 local job_cache = {}
 
+---@type live_server.Config
 local defaults = {
   args = { '--port=5555' },
 }
 
+---@type live_server.Config
 local config = vim.deepcopy(defaults)
 
 local function log(message, level)
@@ -64,6 +71,7 @@ local function resolve_dir(dir)
   return vim.fn.expand(vim.fn.fnamemodify(vim.fn.expand(dir), ':p'))
 end
 
+---@param dir? string
 function M.start(dir)
   if not init() then
     return
@@ -109,6 +117,7 @@ function M.start(dir)
   job_cache[dir] = job_id
 end
 
+---@param dir? string
 function M.stop(dir)
   dir = resolve_dir(dir)
   local cached_dir = find_cached_dir(dir)
@@ -119,6 +128,7 @@ function M.stop(dir)
   end
 end
 
+---@param dir? string
 function M.toggle(dir)
   dir = resolve_dir(dir)
   if is_running(dir) then
@@ -129,6 +139,7 @@ function M.toggle(dir)
 end
 
 ---@deprecated Use `vim.g.live_server` instead
+---@param user_config? live_server.Config
 function M.setup(user_config)
   vim.deprecate(
     'require("live-server").setup()',

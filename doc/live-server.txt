@@ -1,43 +1,101 @@
-live-server                                                    *live-server.txt*
+*live-server.txt*                          Live reload for web development
 
 Author: Barrett Ruth <https://barrettruth.com>
 Homepage: <https://github.com/barrettruth/live-server.nvim>
 
 ===============================================================================
-INTRODUCTION                                                 *live-server.nvim*
+INTRODUCTION                                                *live-server.nvim*
 
 live-server.nvim automatically reloads HTML, CSS, and JavaScript files in the
 browser via a local development server.
 
 ===============================================================================
-CONFIGURATION                                             *live-server.config*
+REQUIREMENTS                                        *live-server-requirements*
 
-Configure via `vim.g.live_server` before the plugin loads:
->lua
-    vim.g.live_server = {
-        args = { '--port=5555' },
-    }
-<
-Options: ~
-
-    {args}  `(string[])`: Arguments passed to live-server via `vim.fn.jobstart()`.
-                        Run `live-server --help` to see available options.
-                        Default: { '--port=5555' }
+- Neovim >= 0.9.0
+- live-server npm package (`npm install -g live-server`)
 
 ===============================================================================
-COMMANDS                                                 *live-server.commands*
+CONFIGURATION                                            *live-server-config*
 
-                                                              *LiveServerStart*
+                                                          *vim.g.live_server*
+Configure via `vim.g.live_server` before the plugin loads: >lua
+
+    vim.g.live_server = {
+        args = { '--port=8080', '--no-browser' },
+    }
+<
+                                                         *live_server.Config*
+Fields: ~
+
+    {args}  (`string[]`) Arguments passed to live-server via |vim.fn.jobstart()|.
+            Run `live-server --help` to see available options.
+            Default: `{ '--port=5555' }`
+
+===============================================================================
+COMMANDS                                               *live-server-commands*
+
+                                                            *:LiveServerStart*
 :LiveServerStart [dir]    Start the live server. If `dir` is provided, the
-                          server starts in the specified directory.
+                          server starts in the specified directory. Otherwise,
+                          uses the directory of the current file.
 
-                                                               *LiveServerStop*
+                                                             *:LiveServerStop*
 :LiveServerStop [dir]     Stop the live server. If `dir` is provided, stops
                           the server running in the specified directory.
 
-                                                             *LiveServerToggle*
+                                                           *:LiveServerToggle*
 :LiveServerToggle [dir]   Toggle the live server on or off. If `dir` is
                           provided, toggles the server in that directory.
 
+===============================================================================
+API                                                        *live-server-api*
+
+All functions accept an optional `dir` parameter. When omitted, the directory
+of the current file is used.
+
+live_server.start({dir})                                 *live_server.start()*
+    Start the live server in the specified directory.
+
+    Parameters: ~
+        {dir}  (`string?`) Directory to serve
+
+live_server.stop({dir})                                   *live_server.stop()*
+    Stop the live server running in the specified directory.
+
+    Parameters: ~
+        {dir}  (`string?`) Directory of running server
+
+live_server.toggle({dir})                               *live_server.toggle()*
+    Toggle the live server on or off.
+
+    Parameters: ~
+        {dir}  (`string?`) Directory to toggle
+
+live_server.setup({user_config})                         *live_server.setup()*
+    Deprecated: Use |vim.g.live_server| instead.
+
+    Parameters: ~
+        {user_config}  (|live_server.Config|?) Configuration table
+
+===============================================================================
+EXAMPLES                                               *live-server-examples*
+
+Start server in project root: >vim
+
+    :LiveServerStart ~/projects/my-website
+<
+Lua keybinding to toggle server: >lua
+
+    vim.keymap.set('n', '<leader>ls', function()
+        require('live-server').toggle()
+    end)
+<
+Configuration with custom port and no auto-open: >lua
+
+    vim.g.live_server = {
+        args = { '--port=3000', '--no-browser' },
+    }
+<
 -------------------------------------------------------------------------------
-vim:tw=80:ft=help:
+vim:tw=78:ft=help:norl:

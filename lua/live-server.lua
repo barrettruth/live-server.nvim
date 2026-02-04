@@ -130,7 +130,13 @@ end
 
 ---@deprecated Use `vim.g.live_server` instead
 function M.setup(user_config)
-  vim.deprecate('require("live-server").setup()', 'vim.g.live_server', 'v0.1.0', 'live-server.nvim')
+  vim.deprecate(
+    'require("live-server").setup()',
+    'vim.g.live_server',
+    'v0.1.0',
+    'live-server.nvim',
+    false
+  )
 
   if user_config then
     vim.g.live_server = vim.tbl_deep_extend('force', vim.g.live_server or {}, user_config)

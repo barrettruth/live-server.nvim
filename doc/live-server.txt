@@ -49,6 +49,27 @@ COMMANDS                                               *live-server-commands*
                           provided, toggles the server in that directory.
 
 ===============================================================================
+MAPPINGS                                               *live-server-mappings*
+
+                                                    *<Plug>(live-server-start)*
+<Plug>(live-server-start)   Start the live server. Equivalent to
+                            |:LiveServerStart| with no arguments.
+
+                                                     *<Plug>(live-server-stop)*
+<Plug>(live-server-stop)    Stop the live server. Equivalent to
+                            |:LiveServerStop| with no arguments.
+
+                                                   *<Plug>(live-server-toggle)*
+<Plug>(live-server-toggle)  Toggle the live server. Equivalent to
+                            |:LiveServerToggle| with no arguments.
+
+Example configuration: >lua
+    vim.keymap.set('n', '<leader>ls', '<Plug>(live-server-start)')
+    vim.keymap.set('n', '<leader>lx', '<Plug>(live-server-stop)')
+    vim.keymap.set('n', '<leader>lt', '<Plug>(live-server-toggle)')
+<
+
+===============================================================================
 API                                                        *live-server-api*
 
 All functions accept an optional `dir` parameter. When omitted, the directory
@@ -87,9 +108,7 @@ Start server in project root: >vim
 <
 Lua keybinding to toggle server: >lua
 
-    vim.keymap.set('n', '<leader>ls', function()
-        require('live-server').toggle()
-    end)
+    vim.keymap.set('n', '<leader>ls', '<Plug>(live-server-toggle)')
 <
 Configuration with custom port and no auto-open: >lua
 

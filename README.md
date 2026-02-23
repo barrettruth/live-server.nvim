@@ -4,7 +4,9 @@ Live reload HTML, CSS, and JavaScript files inside Neovim. No external
 dependencies — the server runs entirely in Lua using Neovim's built-in libuv
 bindings.
 
-Requires Neovim >= 0.10.
+## Dependencies
+
+- Neovim >= 0.10
 
 ## Installation
 

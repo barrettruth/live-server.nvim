@@ -1,12 +1,12 @@
 local uv = vim.uv
 
 ---@class live_server.Instance
----@field handle uv_tcp_t
+---@field handle uv.uv_tcp_t
 ---@field port integer
 ---@field root_real string
----@field sse_clients uv_tcp_t[]
----@field debounce_timer uv_timer_t
----@field fs_event uv_fs_event_t?
+---@field sse_clients uv.uv_tcp_t[]
+---@field debounce_timer uv.uv_timer_t
+---@field fs_event uv.uv_fs_event_t?
 ---@field ignore_patterns string[]
 ---@field debounce_ms integer
 ---@field css_inject boolean
@@ -122,7 +122,7 @@ local function response_line(status)
   return ('HTTP/1.1 %d %s\r\n'):format(status, REASON_PHRASES[status] or 'Unknown')
 end
 
----@param sock uv_tcp_t
+---@param sock uv.uv_tcp_t
 ---@param status integer
 ---@param headers table<string, string>
 ---@param body? string
@@ -151,7 +151,7 @@ local function write_response(sock, status, headers, body)
   end
 end
 
----@param sock uv_tcp_t
+---@param sock uv.uv_tcp_t
 ---@param status integer
 local function error_response(sock, status)
   local phrase = REASON_PHRASES[status] or 'Error'
@@ -175,7 +175,7 @@ local function resolve_path(root, request_path)
   return real
 end
 
----@param sock uv_tcp_t
+---@param sock uv.uv_tcp_t
 ---@param filepath string
 local function serve_file_streaming(sock, filepath)
   uv.fs_open(filepath, 'r', 438, function(err_open, fd)
@@ -289,7 +289,7 @@ local function serve_file_streaming(sock, filepath)
   end)
 end
 
----@param sock uv_tcp_t
+---@param sock uv.uv_tcp_t
 ---@param dirpath string
 ---@param url_path string
 ---@param root string
@@ -375,7 +375,7 @@ end
 local function sse_broadcast(inst, event, payload)
   dbg(inst, ('sse_broadcast: %d client(s), event=%s'):format(#inst.sse_clients, event))
   local msg = ('event: %s\ndata: %s\n\n'):format(event, payload)
-  ---@type uv_tcp_t[]
+  ---@type uv.uv_tcp_t[]
   local alive = {}
   for _, client in ipairs(inst.sse_clients) do
     local ok = pcall(client.write, client, msg)
@@ -391,7 +391,7 @@ local function sse_broadcast(inst, event, payload)
 end
 
 ---@param inst live_server.Instance
----@param sock uv_tcp_t
+---@param sock uv.uv_tcp_t
 ---@param raw string
 local function handle_request(inst, sock, raw)
   local method, path = raw:match('^(%u+)%s+([^%s]+)')

@@ -9,12 +9,14 @@ local uv = vim.uv
 ---@field fs_event uv_fs_event_t?
 ---@field ignore_patterns string[]
 ---@field debounce_ms integer
+---@field css_inject boolean
 
 ---@class live_server.StartConfig
 ---@field port integer
 ---@field root_real string
 ---@field debounce? integer
 ---@field ignore? string[]
+---@field css_inject? boolean
 
 local S = {}
 
@@ -492,6 +494,9 @@ local function setup_file_watcher(inst)
   end
   inst.fs_event = fs_event
 
+  ---@type boolean
+  local pending_css_only = true
+
   ---@param watch_err? string
   ---@param filename? string
   local function on_change(watch_err, filename)
@@ -501,9 +506,13 @@ local function setup_file_watcher(inst)
     if filename and should_ignore(filename, inst.ignore_patterns) then
       return
     end
+    if filename and not filename:match('%.css$') then
+      pending_css_only = false
+    end
     inst.debounce_timer:stop()
-    local css_only = filename and filename:match('%.css$') ~= nil
     inst.debounce_timer:start(inst.debounce_ms, 0, function()
+      local css_only = pending_css_only
+      pending_css_only = true
       vim.schedule(function()
         S.reload(inst, css_only)
       end)
@@ -532,6 +541,7 @@ function S.start(cfg)
     fs_event = nil,
     ignore_patterns = cfg.ignore or {},
     debounce_ms = cfg.debounce or 120,
+    css_inject = cfg.css_inject ~= false,
   }
 
   handle:listen(128, function(listen_err)
@@ -574,7 +584,8 @@ end
 ---@param inst live_server.Instance
 ---@param css_only boolean
 function S.reload(inst, css_only)
-  local payload = css_only and '{"css":true}' or '{"css":false}'
+  local use_css = css_only and inst.css_inject
+  local payload = use_css and '{"css":true}' or '{"css":false}'
   sse_broadcast(inst, 'reload', payload)
 end
 

@@ -35,6 +35,8 @@ Fields: ~
                 Default: `120`
     {ignore}    (`string[]?`) Lua patterns for file paths to ignore when
                 watching for changes. Default: `{}`
+    {css_inject} (`boolean?`) Hot-swap CSS without full page reload.
+                Default: `true`
 
 ===============================================================================
 COMMANDS                                               *live-server-commands*

@@ -13,6 +13,7 @@ local instances = {}
 ---@field browser? boolean
 ---@field debounce? integer
 ---@field ignore? string[]
+---@field css_inject? boolean
 
 ---@type live_server.Config
 local defaults = {
@@ -20,6 +21,7 @@ local defaults = {
   browser = true,
   debounce = 120,
   ignore = {},
+  css_inject = true,
 }
 
 ---@type live_server.Config
@@ -31,6 +33,24 @@ local function log(message, level)
   vim.notify(('live-server.nvim: %s'):format(message), vim.log.levels[level])
 end
 
+---@type table<string, boolean>
+local UNSUPPORTED_FLAGS = {
+  ['--host'] = true,
+  ['--open'] = true,
+  ['--browser'] = true,
+  ['--quiet'] = true,
+  ['--entry-file'] = true,
+  ['--spa'] = true,
+  ['--mount'] = true,
+  ['--proxy'] = true,
+  ['--htpasswd'] = true,
+  ['--cors'] = true,
+  ['--https'] = true,
+  ['--https-module'] = true,
+  ['--middleware'] = true,
+  ['--ignorePattern'] = true,
+}
+
 ---@param user_config table
 ---@return table
 local function migrate_args(user_config)
@@ -39,8 +59,8 @@ local function migrate_args(user_config)
   end
 
   vim.deprecate(
-    'vim.g.live_server args field',
-    'port, browser fields',
+    '`vim.g.live_server.args`',
+    '`:h live-server-config`',
     'v0.2.0',
     'live-server.nvim',
     false
@@ -57,9 +77,28 @@ local function migrate_args(user_config)
     local port = arg:match('%-%-port=(%d+)')
     if port then
       migrated.port = tonumber(port)
-    end
-    if arg == '--no-browser' then
+    elseif arg == '--no-browser' then
       migrated.browser = false
+    elseif arg == '--no-css-inject' then
+      migrated.css_inject = false
+    else
+      local wait = arg:match('%-%-wait=(%d+)')
+      if wait then
+        migrated.debounce = tonumber(wait)
+      else
+        local ignore_val = arg:match('%-%-ignore=(.*)')
+        if ignore_val then
+          migrated.ignore = migrated.ignore or {}
+          for pattern in ignore_val:gmatch('[^,]+') do
+            migrated.ignore[#migrated.ignore + 1] = vim.trim(pattern)
+          end
+        else
+          local flag = arg:match('^(%-%-[%w-]+)')
+          if flag and UNSUPPORTED_FLAGS[flag] then
+            log(('flag `%s` is not supported and will be ignored'):format(arg), 'WARN')
+          end
+        end
+      end
     end
   end
 
@@ -142,6 +181,7 @@ function M.start(dir)
     root_real = root_real,
     debounce = config.debounce,
     ignore = config.ignore,
+    css_inject = config.css_inject,
   })
 
   instances[dir] = inst
@@ -177,8 +217,8 @@ end
 ---@param user_config? live_server.Config
 function M.setup(user_config)
   vim.deprecate(
-    'require("live-server").setup()',
-    'vim.g.live_server',
+    '`require("live-server").setup()`',
+    '`vim.g.live_server`',
     'v0.1.0',
     'live-server.nvim',
     false

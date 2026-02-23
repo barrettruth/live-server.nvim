@@ -7,13 +7,13 @@ Homepage: <https://github.com/barrettruth/live-server.nvim>
 INTRODUCTION                                                *live-server.nvim*
 
 live-server.nvim automatically reloads HTML, CSS, and JavaScript files in the
-browser via a local development server.
+browser via a local development server. No external dependencies required —
+the server runs entirely in Lua using Neovim's built-in libuv bindings.
 
 ===============================================================================
 REQUIREMENTS                                        *live-server-requirements*
 
-- Neovim >= 0.9.0
-- live-server npm package (`npm install -g live-server`)
+- Neovim >= 0.10
 
 ===============================================================================
 CONFIGURATION                                            *live-server-config*
@@ -22,15 +22,25 @@ CONFIGURATION                                            *live-server-config*
 Configure via `vim.g.live_server` before the plugin loads: >lua
 
     vim.g.live_server = {
-        args = { '--port=8080', '--no-browser' },
+        port = 8080,
+        browser = false,
     }
 <
                                                          *live_server.Config*
 Fields: ~
 
-    {args}  (`string[]`) Arguments passed to live-server via |vim.fn.jobstart()|.
-            Run `live-server --help` to see available options.
-            Default: `{ '--port=5555' }`
+    {port}      (`integer?`) Port for the HTTP server. Default: `5500`
+    {browser}   (`boolean?`) Auto-open browser on start. Default: `true`
+    {debounce}  (`integer?`) Debounce interval in ms for file changes.
+                Default: `120`
+    {ignore}    (`string[]?`) Lua patterns for file paths to ignore when
+                watching for changes. Default: `{}`
+
+Migration from args config: ~
+
+The previous `args` field (`{ '--port=8080', '--no-browser' }`) is still
+accepted but deprecated. `--port=N` maps to `port = N` and `--no-browser`
+maps to `browser = false`. A deprecation warning will be emitted.
 
 ===============================================================================
 COMMANDS                                               *live-server-commands*
@@ -113,7 +123,14 @@ Lua keybinding to toggle server: >lua
 Configuration with custom port and no auto-open: >lua
 
     vim.g.live_server = {
-        args = { '--port=3000', '--no-browser' },
+        port = 3000,
+        browser = false,
+    }
+<
+Ignore node_modules and dotfiles: >lua
+
+    vim.g.live_server = {
+        ignore = { 'node_modules', '^%.' },
     }
 <
 -------------------------------------------------------------------------------

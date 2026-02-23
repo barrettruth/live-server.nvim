@@ -107,11 +107,7 @@ end
 
 local function error_response(sock, status)
   local phrase = REASON_PHRASES[status] or 'Error'
-  local body = string.format(
-    '<html><body><h1>%d %s</h1></body></html>',
-    status,
-    phrase
-  )
+  local body = string.format('<html><body><h1>%d %s</h1></body></html>', status, phrase)
   write_response(sock, status, { ['Content-Type'] = 'text/html; charset=utf-8' }, body)
 end
 
@@ -163,18 +159,27 @@ local function serve_file_streaming(sock, filepath)
           else
             data = data .. '\n' .. INJECT_TAG
           end
-          local ok = pcall(sock.write, sock, response_line(200)
-            .. 'Content-Type: ' .. mime .. '\r\n'
-            .. 'Content-Length: ' .. tostring(#data) .. '\r\n'
-            .. 'Connection: close\r\n'
-            .. '\r\n'
-            .. data, function()
-            pcall(sock.shutdown, sock, function()
-              if not sock:is_closing() then
-                sock:close()
-              end
-            end)
-          end)
+          local ok = pcall(
+            sock.write,
+            sock,
+            response_line(200)
+              .. 'Content-Type: '
+              .. mime
+              .. '\r\n'
+              .. 'Content-Length: '
+              .. tostring(#data)
+              .. '\r\n'
+              .. 'Connection: close\r\n'
+              .. '\r\n'
+              .. data,
+            function()
+              pcall(sock.shutdown, sock, function()
+                if not sock:is_closing() then
+                  sock:close()
+                end
+              end)
+            end
+          )
           if not ok and not sock:is_closing() then
             sock:close()
           end
@@ -183,8 +188,12 @@ local function serve_file_streaming(sock, filepath)
       end
 
       local header = response_line(200)
-        .. 'Content-Type: ' .. mime .. '\r\n'
-        .. 'Content-Length: ' .. tostring(size) .. '\r\n'
+        .. 'Content-Type: '
+        .. mime
+        .. '\r\n'
+        .. 'Content-Length: '
+        .. tostring(size)
+        .. '\r\n'
         .. 'Connection: close\r\n'
         .. '\r\n'
 
@@ -365,7 +374,12 @@ local function handle_request(inst, sock, raw)
   end
 
   if path == '/__live/script.js' then
-    write_response(sock, 200, { ['Content-Type'] = 'application/javascript; charset=utf-8' }, CLIENT_JS)
+    write_response(
+      sock,
+      200,
+      { ['Content-Type'] = 'application/javascript; charset=utf-8' },
+      CLIENT_JS
+    )
     return
   end
 
@@ -429,21 +443,27 @@ local function setup_file_watcher(inst)
   end
   inst.fs_event = fs_event
 
-  local ok = pcall(fs_event.start, fs_event, inst.root_real, { recursive = true }, function(watch_err, filename)
-    if watch_err then
-      return
-    end
-    if filename and should_ignore(filename, inst.ignore_patterns) then
-      return
-    end
-    inst.debounce_timer:stop()
-    local css_only = filename and filename:match('%.css$') ~= nil
-    inst.debounce_timer:start(inst.debounce_ms, 0, function()
-      vim.schedule(function()
-        S.reload(inst, css_only)
+  local ok = pcall(
+    fs_event.start,
+    fs_event,
+    inst.root_real,
+    { recursive = true },
+    function(watch_err, filename)
+      if watch_err then
+        return
+      end
+      if filename and should_ignore(filename, inst.ignore_patterns) then
+        return
+      end
+      inst.debounce_timer:stop()
+      local css_only = filename and filename:match('%.css$') ~= nil
+      inst.debounce_timer:start(inst.debounce_ms, 0, function()
+        vim.schedule(function()
+          S.reload(inst, css_only)
+        end)
       end)
-    end)
-  end)
+    end
+  )
 
   if not ok then
     pcall(fs_event.start, fs_event, inst.root_real, {}, function(watch_err, filename)

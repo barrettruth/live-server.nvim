@@ -24,6 +24,7 @@ jobs:
               - '*.lua'
               - '.luarc.json'
               - '*.toml'
+              - 'vim.yaml'
             markdown:
               - '*.md'
               - 'doc/**/*.md'
@@ -35,11 +36,8 @@ jobs:
     if: ${{ needs.changes.outputs.lua == 'true' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: JohnnyMorganz/stylua-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: 2.1.0
-          args: --check .
+      - uses: cachix/install-nix-action@v31
+      - run: nix develop --command stylua --check .
 
   lua-lint:
     name: Lua Lint Check
@@ -48,11 +46,8 @@ jobs:
     if: ${{ needs.changes.outputs.lua == 'true' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Lint with Selene
-        uses: NTBBloodbath/selene-action@v1.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --display-style quiet .
+      - uses: cachix/install-nix-action@v31
+      - run: nix develop --command selene --display-style quiet .
 
   lua-typecheck:
     name: Lua Type Check
@@ -75,15 +70,5 @@ jobs:
     if: ${{ needs.changes.outputs.markdown == 'true' }}
     steps:
       - uses: actions/checkout@v4
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-      - name: Install prettier
-        run: pnpm add -g prettier@3.1.0
-      - name: Check markdown formatting with prettier
-        run: prettier --check .
+      - uses: cachix/install-nix-action@v31
+      - run: nix develop --command prettier --check .

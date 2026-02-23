@@ -24,6 +24,7 @@ jobs:
               - '.luarc.json'
               - 'stylua.toml'
               - 'selene.toml'
+              - 'vim.yaml'
 
   lua-format:
     runs-on: ubuntu-latest
@@ -31,11 +32,8 @@ jobs:
     if: ${{ needs.changes.outputs.lua == 'true' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: JohnnyMorganz/stylua-action@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          version: 2.1.0
-          args: --check .
+      - uses: cachix/install-nix-action@v31
+      - run: nix develop --command stylua --check .
 
   lua-lint:
     runs-on: ubuntu-latest
@@ -43,10 +41,8 @@ jobs:
     if: ${{ needs.changes.outputs.lua == 'true' }}
     steps:
       - uses: actions/checkout@v4
-      - uses: NTBBloodbath/selene-action@v1.0.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --display-style quiet .
+      - uses: cachix/install-nix-action@v31
+      - run: nix develop --command selene --display-style quiet .
 
   lua-typecheck:
     runs-on: ubuntu-latest

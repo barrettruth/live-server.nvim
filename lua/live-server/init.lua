@@ -41,7 +41,7 @@ local function migrate_args(user_config)
   vim.deprecate(
     'vim.g.live_server args field',
     'port, browser fields',
-    'v1.0.0',
+    'v0.2.0',
     'live-server.nvim',
     false
   )
@@ -179,7 +179,7 @@ function M.setup(user_config)
   vim.deprecate(
     'require("live-server").setup()',
     'vim.g.live_server',
-    'v1.0.0',
+    'v0.1.0',
     'live-server.nvim',
     false
   )

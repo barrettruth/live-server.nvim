@@ -36,12 +36,6 @@ Fields: ~
     {ignore}    (`string[]?`) Lua patterns for file paths to ignore when
                 watching for changes. Default: `{}`
 
-Migration from args config: ~
-
-The previous `args` field (`{ '--port=8080', '--no-browser' }`) is still
-accepted but deprecated. `--port=N` maps to `port = N` and `--no-browser`
-maps to `browser = false`. A deprecation warning will be emitted.
-
 ===============================================================================
 COMMANDS                                               *live-server-commands*
 

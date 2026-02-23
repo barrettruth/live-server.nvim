@@ -3,3 +3,6 @@ doc/tags
 CLAUDE.md
 .claude/
 node_modules/
+
+.envrc
+.direnv

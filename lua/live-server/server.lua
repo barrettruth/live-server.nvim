@@ -543,12 +543,22 @@ local function setup_file_watcher(inst)
     end)
   end
 
-  local ok = pcall(fs_event.start, fs_event, inst.root_real, { recursive = true }, on_change)
+  local recursive = jit.os ~= 'Linux'
+  local ok = recursive and pcall(fs_event.start, fs_event, inst.root_real, { recursive = true }, on_change)
   if ok then
     dbg(inst, ('watching: %s (recursive=true)'):format(inst.root_real))
   else
     pcall(fs_event.start, fs_event, inst.root_real, {}, on_change)
     dbg(inst, ('watching: %s (recursive=false)'):format(inst.root_real))
+    if recursive then
+      return
+    end
+    vim.schedule(function()
+      vim.notify(
+        '[live-server] recursive file watching is not supported on Linux; only files in the root directory will trigger reload. See :h live-server-linux-recursive',
+        vim.log.levels.WARN
+      )
+    end)
   end
 end
 

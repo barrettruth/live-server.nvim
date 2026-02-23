@@ -1,1 +1,4 @@
 std = 'vim'
+
+[lints]
+bad_string_escape = "allow"

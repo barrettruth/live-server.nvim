@@ -531,7 +531,10 @@ local function setup_file_watcher(inst)
     if filename and not filename:match('%.css$') then
       pending_css_only = false
     end
-    dbg(inst, ('fs_event: %s (css_only=%s)'):format(filename or '<nil>', tostring(pending_css_only)))
+    dbg(
+      inst,
+      ('fs_event: %s (css_only=%s)'):format(filename or '<nil>', tostring(pending_css_only))
+    )
     inst.debounce_timer:stop()
     inst.debounce_timer:start(inst.debounce_ms, 0, function()
       local css_only = pending_css_only
@@ -544,7 +547,8 @@ local function setup_file_watcher(inst)
   end
 
   local recursive = jit.os ~= 'Linux'
-  local ok = recursive and pcall(fs_event.start, fs_event, inst.root_real, { recursive = true }, on_change)
+  local ok = recursive
+    and pcall(fs_event.start, fs_event, inst.root_real, { recursive = true }, on_change)
   if ok then
     dbg(inst, ('watching: %s (recursive=true)'):format(inst.root_real))
   else
@@ -624,8 +628,14 @@ end
 function S.reload(inst, css_only)
   local use_css = css_only and inst.css_inject
   local payload = use_css and '{"css":true}' or '{"css":false}'
-  dbg(inst, ('reload: css_only=%s, css_inject=%s, payload=%s'):format(
-    tostring(css_only), tostring(inst.css_inject), payload))
+  dbg(
+    inst,
+    ('reload: css_only=%s, css_inject=%s, payload=%s'):format(
+      tostring(css_only),
+      tostring(inst.css_inject),
+      payload
+    )
+  )
   sse_broadcast(inst, 'reload', payload)
 end
 

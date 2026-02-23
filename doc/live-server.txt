@@ -37,6 +37,8 @@ Fields: ~
                 watching for changes. Default: `{}`
     {css_inject} (`boolean?`) Hot-swap CSS without full page reload.
                 Default: `true`
+    {debug}     (`boolean?`) Log each step of the hot-reload chain via
+                |vim.notify()| at DEBUG level. Default: `false`
 
 ===============================================================================
 COMMANDS                                               *live-server-commands*
@@ -129,5 +131,22 @@ Ignore node_modules and dotfiles: >lua
         ignore = { 'node_modules', '^%.' },
     }
 <
+===============================================================================
+KNOWN LIMITATIONS                                  *live-server-limitations*
+
+No Recursive File Watching on Linux ~
+                                              *live-server-linux-recursive*
+libuv's `uv_fs_event` only supports recursive directory watching on macOS
+(FSEvents) and Windows (ReadDirectoryChangesW). On Linux, the `recursive`
+flag is silently accepted but ignored because inotify does not support it
+natively. Only files directly in the served root directory trigger
+hot-reload; files in subdirectories (e.g. `css/style.css`) will not be
+detected.
+
+See https://github.com/libuv/libuv/issues/1778
+
+Enable `debug` in |live-server-config| to verify whether `fs_event`
+callbacks fire for a given file change.
+
 -------------------------------------------------------------------------------
 vim:tw=78:ft=help:norl:

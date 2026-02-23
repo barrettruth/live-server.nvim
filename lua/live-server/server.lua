@@ -1,7 +1,24 @@
 local uv = vim.uv
 
+---@class live_server.Instance
+---@field handle uv_tcp_t
+---@field port integer
+---@field root_real string
+---@field sse_clients uv_tcp_t[]
+---@field debounce_timer uv_timer_t
+---@field fs_event uv_fs_event_t?
+---@field ignore_patterns string[]
+---@field debounce_ms integer
+
+---@class live_server.StartConfig
+---@field port integer
+---@field root_real string
+---@field debounce? integer
+---@field ignore? string[]
+
 local S = {}
 
+---@type table<string, string>
 local MIME_TYPES = {
   html = 'text/html; charset=utf-8',
   htm = 'text/html; charset=utf-8',
@@ -26,6 +43,7 @@ local MIME_TYPES = {
   wasm = 'application/wasm',
 }
 
+---@type table<integer, string>
 local REASON_PHRASES = {
   [200] = 'OK',
   [301] = 'Moved Permanently',
@@ -35,8 +53,10 @@ local REASON_PHRASES = {
   [500] = 'Internal Server Error',
 }
 
+---@type integer
 local CHUNK_SIZE = 65536
 
+---@type string
 local CLIENT_JS = [[
 (function() {
   var es = new EventSource('/__live/events');
@@ -55,14 +75,19 @@ local CLIENT_JS = [[
 })();
 ]]
 
+---@type string
 local INJECT_TAG = '<script src="/__live/script.js"></script>'
 
+---@param str string
+---@return string
 local function url_decode(str)
   return (str:gsub('%%(%x%x)', function(hex)
     return string.char(tonumber(hex, 16))
   end))
 end
 
+---@param path string
+---@return string
 local function get_mime(path)
   local ext = path:match('%.([^%.]+)$')
   if ext then
@@ -71,15 +96,23 @@ local function get_mime(path)
   return 'application/octet-stream'
 end
 
+---@param path string
+---@return boolean
 local function is_html(path)
   local ext = path:match('%.([^%.]+)$')
   return ext and (ext:lower() == 'html' or ext:lower() == 'htm')
 end
 
+---@param status integer
+---@return string
 local function response_line(status)
-  return string.format('HTTP/1.1 %d %s\r\n', status, REASON_PHRASES[status] or 'Unknown')
+  return ('HTTP/1.1 %d %s\r\n'):format(status, REASON_PHRASES[status] or 'Unknown')
 end
 
+---@param sock uv_tcp_t
+---@param status integer
+---@param headers table<string, string>
+---@param body? string
 local function write_response(sock, status, headers, body)
   local parts = { response_line(status) }
   headers['Connection'] = 'close'
@@ -87,7 +120,7 @@ local function write_response(sock, status, headers, body)
     headers['Content-Length'] = tostring(#body)
   end
   for k, v in pairs(headers) do
-    parts[#parts + 1] = k .. ': ' .. v .. '\r\n'
+    parts[#parts + 1] = ('%s: %s\r\n'):format(k, v)
   end
   parts[#parts + 1] = '\r\n'
   if body then
@@ -105,15 +138,20 @@ local function write_response(sock, status, headers, body)
   end
 end
 
+---@param sock uv_tcp_t
+---@param status integer
 local function error_response(sock, status)
   local phrase = REASON_PHRASES[status] or 'Error'
-  local body = string.format('<html><body><h1>%d %s</h1></body></html>', status, phrase)
+  local body = ([[<html><body><h1>%d %s</h1></body></html>]]):format(status, phrase)
   write_response(sock, status, { ['Content-Type'] = 'text/html; charset=utf-8' }, body)
 end
 
+---@param root string
+---@param request_path string
+---@return string?
 local function resolve_path(root, request_path)
   local decoded = url_decode(request_path)
-  local joined = root .. '/' .. decoded
+  local joined = ('%s/%s'):format(root, decoded)
   local real = uv.fs_realpath(joined)
   if not real then
     return nil
@@ -124,6 +162,8 @@ local function resolve_path(root, request_path)
   return real
 end
 
+---@param sock uv_tcp_t
+---@param filepath string
 local function serve_file_streaming(sock, filepath)
   uv.fs_open(filepath, 'r', 438, function(err_open, fd)
     if err_open or not fd then
@@ -155,31 +195,23 @@ local function serve_file_streaming(sock, filepath)
           local lower = data:lower()
           local inject_pos = lower:find('</body>')
           if inject_pos then
-            data = data:sub(1, inject_pos - 1) .. INJECT_TAG .. '\n' .. data:sub(inject_pos)
+            data = ('%s%s\n%s'):format(data:sub(1, inject_pos - 1), INJECT_TAG, data:sub(inject_pos))
           else
-            data = data .. '\n' .. INJECT_TAG
+            data = ('%s\n%s'):format(data, INJECT_TAG)
           end
-          local ok = pcall(
-            sock.write,
-            sock,
-            response_line(200)
-              .. 'Content-Type: '
-              .. mime
-              .. '\r\n'
-              .. 'Content-Length: '
-              .. tostring(#data)
-              .. '\r\n'
-              .. 'Connection: close\r\n'
-              .. '\r\n'
-              .. data,
-            function()
-              pcall(sock.shutdown, sock, function()
-                if not sock:is_closing() then
-                  sock:close()
-                end
-              end)
-            end
-          )
+          local response = ('%s\z
+            Content-Type: %s\r\n\z
+            Content-Length: %d\r\n\z
+            Connection: close\r\n\z
+            \r\n\z
+            %s'):format(response_line(200), mime, #data, data)
+          local ok = pcall(sock.write, sock, response, function()
+            pcall(sock.shutdown, sock, function()
+              if not sock:is_closing() then
+                sock:close()
+              end
+            end)
+          end)
           if not ok and not sock:is_closing() then
             sock:close()
           end
@@ -187,17 +219,14 @@ local function serve_file_streaming(sock, filepath)
         return
       end
 
-      local header = response_line(200)
-        .. 'Content-Type: '
-        .. mime
-        .. '\r\n'
-        .. 'Content-Length: '
-        .. tostring(size)
-        .. '\r\n'
-        .. 'Connection: close\r\n'
-        .. '\r\n'
+      local header = ('%s\z
+        Content-Type: %s\r\n\z
+        Content-Length: %d\r\n\z
+        Connection: close\r\n\z
+        \r\n'):format(response_line(200), mime, size)
 
       local offset = 0
+      ---@type fun()
       local function read_chunk()
         local to_read = math.min(CHUNK_SIZE, size - offset)
         if to_read <= 0 then
@@ -243,6 +272,10 @@ local function serve_file_streaming(sock, filepath)
   end)
 end
 
+---@param sock uv_tcp_t
+---@param dirpath string
+---@param url_path string
+---@param root string
 local function serve_directory_listing(sock, dirpath, url_path, root)
   uv.fs_scandir(dirpath, function(err, handle)
     if err or not handle then
@@ -252,7 +285,9 @@ local function serve_directory_listing(sock, dirpath, url_path, root)
       return
     end
 
+    ---@type string[]
     local dirs = {}
+    ---@type string[]
     local files = {}
     while true do
       local name, typ = uv.fs_scandir_next(handle)
@@ -273,36 +308,41 @@ local function serve_directory_listing(sock, dirpath, url_path, root)
       prefix = prefix .. '/'
     end
 
-    local parts = {
-      '<html><head><meta charset="utf-8"><title>Index of ',
-      prefix,
-      '</title><style>body{font-family:monospace;padding:1em}a{text-decoration:none}a:hover{text-decoration:underline}li{line-height:1.6}</style></head><body><h1>Index of ',
-      prefix,
-      '</h1><ul>',
-    }
-
+    ---@type string[]
+    local entries = {}
     if dirpath ~= root then
-      parts[#parts + 1] = '<li><a href="../">../</a></li>'
+      entries[#entries + 1] = '<li><a href="../">../</a></li>'
     end
-
     for _, d in ipairs(dirs) do
-      parts[#parts + 1] = '<li><a href="' .. prefix .. d .. '/">' .. d .. '/</a></li>'
+      entries[#entries + 1] = ('<li><a href="%s%s/">%s/</a></li>'):format(prefix, d, d)
     end
     for _, f in ipairs(files) do
-      parts[#parts + 1] = '<li><a href="' .. prefix .. f .. '">' .. f .. '</a></li>'
+      entries[#entries + 1] = ('<li><a href="%s%s">%s</a></li>'):format(prefix, f, f)
     end
 
-    parts[#parts + 1] = '</ul>'
-    parts[#parts + 1] = INJECT_TAG
-    parts[#parts + 1] = '</body></html>'
+    local body = ([[
+<html>
+<head>
+<meta charset="utf-8">
+<title>Index of %s</title>
+<style>body{font-family:monospace;padding:1em}a{text-decoration:none}a:hover{text-decoration:underline}li{line-height:1.6}</style>
+</head>
+<body>
+<h1>Index of %s</h1>
+<ul>%s</ul>
+%s
+</body>
+</html>]]):format(prefix, prefix, table.concat(entries), INJECT_TAG)
 
-    local body = table.concat(parts)
     vim.schedule(function()
       write_response(sock, 200, { ['Content-Type'] = 'text/html; charset=utf-8' }, body)
     end)
   end)
 end
 
+---@param path string
+---@param patterns string[]
+---@return boolean
 local function should_ignore(path, patterns)
   for _, pattern in ipairs(patterns) do
     if path:find(pattern) then
@@ -312,8 +352,12 @@ local function should_ignore(path, patterns)
   return false
 end
 
+---@param inst live_server.Instance
+---@param event string
+---@param payload string
 local function sse_broadcast(inst, event, payload)
-  local msg = 'event: ' .. event .. '\ndata: ' .. payload .. '\n\n'
+  local msg = ('event: %s\ndata: %s\n\n'):format(event, payload)
+  ---@type uv_tcp_t[]
   local alive = {}
   for _, client in ipairs(inst.sse_clients) do
     local ok = pcall(client.write, client, msg)
@@ -328,6 +372,9 @@ local function sse_broadcast(inst, event, payload)
   inst.sse_clients = alive
 end
 
+---@param inst live_server.Instance
+---@param sock uv_tcp_t
+---@param raw string
 local function handle_request(inst, sock, raw)
   local method, path = raw:match('^(%u+)%s+([^%s]+)')
   if not method or not path then
@@ -343,17 +390,16 @@ local function handle_request(inst, sock, raw)
   path = path:gsub('%?.*$', '')
 
   if path == '/__live/events' then
-    local header = response_line(200)
-      .. 'Content-Type: text/event-stream\r\n'
-      .. 'Cache-Control: no-cache\r\n'
-      .. 'Connection: keep-alive\r\n'
-      .. '\r\n'
-      .. 'retry: 1000\n\n'
+    local header = ('%s\z
+      Content-Type: text/event-stream\r\n\z
+      Cache-Control: no-cache\r\n\z
+      Connection: keep-alive\r\n\z
+      \r\nretry: 1000\n\n'):format(response_line(200))
     local ok = pcall(sock.write, sock, header)
     if ok then
       inst.sse_clients[#inst.sse_clients + 1] = sock
-      sock:read_start(function(err, data)
-        if err or not data then
+      sock:read_start(function(read_err, data)
+        if read_err or not data then
           for i, c in ipairs(inst.sse_clients) do
             if c == sock then
               table.remove(inst.sse_clients, i)
@@ -413,6 +459,8 @@ local function handle_request(inst, sock, raw)
   serve_file_streaming(sock, resolved)
 end
 
+---@param inst live_server.Instance
+---@param err? string
 local function on_connection(inst, err)
   if err then
     return
@@ -436,6 +484,7 @@ local function on_connection(inst, err)
   end)
 end
 
+---@param inst live_server.Instance
 local function setup_file_watcher(inst)
   local fs_event = uv.new_fs_event()
   if not fs_event then
@@ -443,47 +492,32 @@ local function setup_file_watcher(inst)
   end
   inst.fs_event = fs_event
 
-  local ok = pcall(
-    fs_event.start,
-    fs_event,
-    inst.root_real,
-    { recursive = true },
-    function(watch_err, filename)
-      if watch_err then
-        return
-      end
-      if filename and should_ignore(filename, inst.ignore_patterns) then
-        return
-      end
-      inst.debounce_timer:stop()
-      local css_only = filename and filename:match('%.css$') ~= nil
-      inst.debounce_timer:start(inst.debounce_ms, 0, function()
-        vim.schedule(function()
-          S.reload(inst, css_only)
-        end)
-      end)
+  ---@param watch_err? string
+  ---@param filename? string
+  local function on_change(watch_err, filename)
+    if watch_err then
+      return
     end
-  )
-
-  if not ok then
-    pcall(fs_event.start, fs_event, inst.root_real, {}, function(watch_err, filename)
-      if watch_err then
-        return
-      end
-      if filename and should_ignore(filename, inst.ignore_patterns) then
-        return
-      end
-      inst.debounce_timer:stop()
-      local css_only = filename and filename:match('%.css$') ~= nil
-      inst.debounce_timer:start(inst.debounce_ms, 0, function()
-        vim.schedule(function()
-          S.reload(inst, css_only)
-        end)
+    if filename and should_ignore(filename, inst.ignore_patterns) then
+      return
+    end
+    inst.debounce_timer:stop()
+    local css_only = filename and filename:match('%.css$') ~= nil
+    inst.debounce_timer:start(inst.debounce_ms, 0, function()
+      vim.schedule(function()
+        S.reload(inst, css_only)
       end)
     end)
   end
+
+  local ok = pcall(fs_event.start, fs_event, inst.root_real, { recursive = true }, on_change)
+  if not ok then
+    pcall(fs_event.start, fs_event, inst.root_real, {}, on_change)
+  end
 end
 
+---@param cfg live_server.StartConfig
+---@return live_server.Instance
 function S.start(cfg)
   local handle = uv.new_tcp()
   handle:bind('127.0.0.1', cfg.port)
@@ -500,8 +534,8 @@ function S.start(cfg)
     debounce_ms = cfg.debounce or 120,
   }
 
-  handle:listen(128, function(err)
-    on_connection(inst, err)
+  handle:listen(128, function(listen_err)
+    on_connection(inst, listen_err)
   end)
 
   setup_file_watcher(inst)
@@ -509,6 +543,7 @@ function S.start(cfg)
   return inst
 end
 
+---@param inst live_server.Instance
 function S.stop(inst)
   if inst.debounce_timer then
     inst.debounce_timer:stop()
@@ -536,6 +571,8 @@ function S.stop(inst)
   end
 end
 
+---@param inst live_server.Instance
+---@param css_only boolean
 function S.reload(inst, css_only)
   local payload = css_only and '{"css":true}' or '{"css":false}'
   sse_broadcast(inst, 'reload', payload)

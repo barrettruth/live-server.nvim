@@ -2,6 +2,7 @@ local server = require('live-server.server')
 
 local M = {}
 
+---@type boolean
 local initialized = false
 
 ---@type table<string, live_server.Instance>
@@ -24,10 +25,14 @@ local defaults = {
 ---@type live_server.Config
 local config = vim.deepcopy(defaults)
 
+---@param message string
+---@param level string
 local function log(message, level)
-  vim.notify(string.format('live-server.nvim: %s', message), vim.log.levels[level])
+  vim.notify(('live-server.nvim: %s'):format(message), vim.log.levels[level])
 end
 
+---@param user_config table
+---@return table
 local function migrate_args(user_config)
   if not user_config.args then
     return user_config
@@ -82,6 +87,8 @@ local function init()
   initialized = true
 end
 
+---@param dir? string
+---@return string?
 local function find_cached_dir(dir)
   if not dir then
     return nil
@@ -97,11 +104,15 @@ local function find_cached_dir(dir)
   return cur
 end
 
+---@param dir string
+---@return live_server.Instance?
 local function is_running(dir)
   local cached_dir = find_cached_dir(dir)
   return cached_dir and instances[cached_dir]
 end
 
+---@param dir? string
+---@return string
 local function resolve_dir(dir)
   if not dir or dir == '' then
     dir = '%:p:h'
@@ -122,7 +133,7 @@ function M.start(dir)
 
   local root_real = vim.uv.fs_realpath(dir)
   if not root_real then
-    log('directory does not exist: ' .. dir, 'ERROR')
+    log(('directory does not exist: %s'):format(dir), 'ERROR')
     return
   end
 
@@ -134,10 +145,10 @@ function M.start(dir)
   })
 
   instances[dir] = inst
-  log(string.format('started on 127.0.0.1:%d', config.port), 'INFO')
+  log(('started on 127.0.0.1:%d'):format(config.port), 'INFO')
 
   if config.browser then
-    vim.ui.open(string.format('http://127.0.0.1:%d/', config.port))
+    vim.ui.open(('http://127.0.0.1:%d/'):format(config.port))
   end
 end
 

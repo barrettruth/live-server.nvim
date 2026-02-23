@@ -1,4 +1,4 @@
-minimum_pre_commit_version: "3.5.0"
+minimum_pre_commit_version: '3.5.0'
 
 repos:
   - repo: https://github.com/JohnnyMorganz/StyLua
@@ -14,4 +14,4 @@ repos:
     hooks:
       - id: prettier
         name: prettier
-        files: \.(md|toml|ya?ml|sh)$
+        files: \.(md|toml|yaml|yml|sh)$

@@ -1,14 +1,12 @@
 if vim.fn.has('nvim-0.10') == 0 then
-  local marker = vim.fn.stdpath('data') .. '/live-server-version-notice'
-  if vim.fn.filereadable(marker) == 0 then
-    vim.notify(
-      'live-server.nvim v0.2.0 will require Neovim >= 0.10.\n'
-        .. 'To keep using this plugin, pin to the v0.1.6 tag:\n\n'
-        .. '  { "barrettruth/live-server.nvim", tag = "v0.1.6" }',
-      vim.log.levels.WARN
-    )
-    vim.fn.writefile({}, marker)
-  end
+  vim.api.nvim_echo({
+    {
+      'live-server.nvim requires Neovim >= 0.10. '
+        .. 'Pin to v0.1.6 or upgrade Neovim.',
+      'ErrorMsg',
+    },
+  }, true, {})
+  return
 end
 
 if vim.g.loaded_live_server then

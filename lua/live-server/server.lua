@@ -10,6 +10,7 @@ local uv = vim.uv
 ---@field ignore_patterns string[]
 ---@field debounce_ms integer
 ---@field css_inject boolean
+---@field debug boolean
 
 ---@class live_server.StartConfig
 ---@field port integer
@@ -17,8 +18,18 @@ local uv = vim.uv
 ---@field debounce? integer
 ---@field ignore? string[]
 ---@field css_inject? boolean
+---@field debug? boolean
 
 local S = {}
+
+local function dbg(inst, msg)
+  if not inst.debug then
+    return
+  end
+  vim.schedule(function()
+    vim.notify(('[live-server] %s'):format(msg), vim.log.levels.DEBUG)
+  end)
+end
 
 ---@type table<string, string>
 local MIME_TYPES = {
@@ -362,6 +373,7 @@ end
 ---@param event string
 ---@param payload string
 local function sse_broadcast(inst, event, payload)
+  dbg(inst, ('sse_broadcast: %d client(s), event=%s'):format(#inst.sse_clients, event))
   local msg = ('event: %s\ndata: %s\n\n'):format(event, payload)
   ---@type uv_tcp_t[]
   local alive = {}
@@ -396,6 +408,7 @@ local function handle_request(inst, sock, raw)
   path = path:gsub('%?.*$', '')
 
   if path == '/__live/events' then
+    dbg(inst, 'request: /__live/events')
     local header = ('%s\z
       Content-Type: text/event-stream\r\n\z
       Cache-Control: no-cache\r\n\z
@@ -404,6 +417,7 @@ local function handle_request(inst, sock, raw)
     local ok = pcall(sock.write, sock, header)
     if ok then
       inst.sse_clients[#inst.sse_clients + 1] = sock
+      dbg(inst, ('sse_client connected (%d total)'):format(#inst.sse_clients))
       sock:read_start(function(read_err, data)
         if read_err or not data then
           for i, c in ipairs(inst.sse_clients) do
@@ -412,6 +426,7 @@ local function handle_request(inst, sock, raw)
               break
             end
           end
+          dbg(inst, ('sse_client disconnected (%d remaining)'):format(#inst.sse_clients))
           if not sock:is_closing() then
             sock:close()
           end
@@ -426,6 +441,7 @@ local function handle_request(inst, sock, raw)
   end
 
   if path == '/__live/script.js' then
+    dbg(inst, 'request: /__live/script.js')
     write_response(
       sock,
       200,
@@ -507,16 +523,20 @@ local function setup_file_watcher(inst)
     if watch_err then
       return
     end
+    dbg(inst, ('fs_event: %s'):format(filename or '<nil>'))
     if filename and should_ignore(filename, inst.ignore_patterns) then
+      dbg(inst, ('fs_event ignored: %s'):format(filename))
       return
     end
     if filename and not filename:match('%.css$') then
       pending_css_only = false
     end
+    dbg(inst, ('fs_event: %s (css_only=%s)'):format(filename or '<nil>', tostring(pending_css_only)))
     inst.debounce_timer:stop()
     inst.debounce_timer:start(inst.debounce_ms, 0, function()
       local css_only = pending_css_only
       pending_css_only = true
+      dbg(inst, ('debounce fired: css_only=%s'):format(tostring(css_only)))
       vim.schedule(function()
         S.reload(inst, css_only)
       end)
@@ -524,8 +544,11 @@ local function setup_file_watcher(inst)
   end
 
   local ok = pcall(fs_event.start, fs_event, inst.root_real, { recursive = true }, on_change)
-  if not ok then
+  if ok then
+    dbg(inst, ('watching: %s (recursive=true)'):format(inst.root_real))
+  else
     pcall(fs_event.start, fs_event, inst.root_real, {}, on_change)
+    dbg(inst, ('watching: %s (recursive=false)'):format(inst.root_real))
   end
 end
 
@@ -546,6 +569,7 @@ function S.start(cfg)
     ignore_patterns = cfg.ignore or {},
     debounce_ms = cfg.debounce or 120,
     css_inject = cfg.css_inject ~= false,
+    debug = cfg.debug or false,
   }
 
   handle:listen(128, function(listen_err)
@@ -590,6 +614,8 @@ end
 function S.reload(inst, css_only)
   local use_css = css_only and inst.css_inject
   local payload = use_css and '{"css":true}' or '{"css":false}'
+  dbg(inst, ('reload: css_only=%s, css_inject=%s, payload=%s'):format(
+    tostring(css_only), tostring(inst.css_inject), payload))
   sse_broadcast(inst, 'reload', payload)
 end
 

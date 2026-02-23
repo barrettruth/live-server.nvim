@@ -14,6 +14,7 @@ local instances = {}
 ---@field debounce? integer
 ---@field ignore? string[]
 ---@field css_inject? boolean
+---@field debug? boolean
 
 ---@type live_server.Config
 local defaults = {
@@ -22,6 +23,7 @@ local defaults = {
   debounce = 120,
   ignore = {},
   css_inject = true,
+  debug = false,
 }
 
 ---@type live_server.Config
@@ -182,6 +184,7 @@ function M.start(dir)
     debounce = config.debounce,
     ignore = config.ignore,
     css_inject = config.css_inject,
+    debug = config.debug,
   })
 
   instances[dir] = inst

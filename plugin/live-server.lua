@@ -1,8 +1,7 @@
 if vim.fn.has('nvim-0.10') == 0 then
   vim.api.nvim_echo({
     {
-      'live-server.nvim requires Neovim >= 0.10. '
-        .. 'Pin to v0.1.6 or upgrade Neovim.',
+      'live-server.nvim requires Neovim >= 0.10. ' .. 'Pin to v0.1.6 or upgrade Neovim.',
       'ErrorMsg',
     },
   }, true, {})

@@ -197,7 +197,11 @@ local function serve_file_streaming(sock, filepath)
           local lower = data:lower()
           local inject_pos = lower:find('</body>')
           if inject_pos then
-            data = ('%s%s\n%s'):format(data:sub(1, inject_pos - 1), INJECT_TAG, data:sub(inject_pos))
+            data = ('%s%s\n%s'):format(
+              data:sub(1, inject_pos - 1),
+              INJECT_TAG,
+              data:sub(inject_pos)
+            )
           else
             data = ('%s\n%s'):format(data, INJECT_TAG)
           end

@@ -557,12 +557,6 @@ local function setup_file_watcher(inst)
     if recursive then
       return
     end
-    vim.schedule(function()
-      vim.notify(
-        '[live-server] recursive file watching is not supported on Linux; only files in the root directory will trigger reload. See :h live-server-linux-recursive',
-        vim.log.levels.WARN
-      )
-    end)
   end
 end
 

@@ -28,9 +28,16 @@ function M.check()
     vim.health.ok('no deprecated config detected')
   end
 
+  if jit.os == 'Linux' then
+    vim.health.warn(
+      'recursive file watching is not supported on Linux',
+      { 'Only files in the root directory will trigger reload. See `:h live-server-linux-recursive`' }
+    )
+  end
+
   if vim.fn.executable('live-server') == 1 then
     vim.health.info(
-      'npm `live-server` is installed but no longer required — you can uninstall it'
+      'npm `live-server` is installed but no longer required'
     )
   end
 end

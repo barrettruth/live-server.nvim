@@ -31,14 +31,14 @@ function M.check()
   if jit.os == 'Linux' then
     vim.health.warn(
       'recursive file watching is not supported on Linux',
-      { 'Only files in the root directory will trigger reload. See `:h live-server-linux-recursive`' }
+      {
+        'Only files in the root directory will trigger reload. See `:h live-server-linux-recursive`',
+      }
     )
   end
 
   if vim.fn.executable('live-server') == 1 then
-    vim.health.info(
-      'npm `live-server` is installed but no longer required'
-    )
+    vim.health.info('npm `live-server` is installed but no longer required')
   end
 end
 

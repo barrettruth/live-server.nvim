@@ -65,12 +65,11 @@ body:
       value: |
         vim.env.LAZY_STDPATH = '.repro'
         load(vim.fn.system('curl -s https://raw.githubusercontent.com/folke/lazy.nvim/main/bootstrap.lua'))()
-        require('lazy.nvim').setup({
+        require('lazy').setup({
           spec = {
             {
               'barrett-ruth/live-server.nvim',
               lazy = false,
-              opts = {},
             },
           },
         })

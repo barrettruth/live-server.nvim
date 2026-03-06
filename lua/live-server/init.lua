@@ -160,7 +160,9 @@ end
 ---@return string
 local function resolve_dir(dir)
   if not dir or dir == '' then
-    dir = '%:p:h'
+    local bufname = vim.api.nvim_buf_get_name(0)
+    local uri_path = bufname:match('^%a+://(/.*)')
+    dir = uri_path or '%:p:h'
   end
   return vim.fn.expand(vim.fn.fnamemodify(vim.fn.expand(dir), ':p'))
 end

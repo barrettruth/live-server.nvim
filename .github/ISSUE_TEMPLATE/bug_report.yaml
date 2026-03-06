@@ -69,6 +69,7 @@ body:
           spec = {
             {
               'barrett-ruth/live-server.nvim',
+              lazy = false,
               opts = {},
             },
           },

@@ -140,7 +140,11 @@ local function find_cached_dir(dir)
     if cur == '/' or cur:match('^[A-Z]:\\$') then
       return nil
     end
-    cur = vim.fn.fnamemodify(cur, ':h')
+    local parent = vim.fn.fnamemodify(cur, ':h')
+    if parent == cur then
+      return nil
+    end
+    cur = parent
   end
   return cur
 end

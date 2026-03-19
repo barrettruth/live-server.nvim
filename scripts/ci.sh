@@ -7,3 +7,4 @@ nix develop --command prettier --check .
 nix fmt
 git diff --exit-code -- '*.nix'
 nix develop --command lua-language-server --check . --checklevel=Warning
+nix develop --command vimdoc-language-server --check doc/ --no-runtime-tags

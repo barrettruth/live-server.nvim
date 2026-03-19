@@ -75,7 +75,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v31
       - run:
-          nix develop --command vimdoc-language-server --check doc/
+          nix develop --command vimdoc-language-server check doc/
           --no-runtime-tags
 
   markdown-format:

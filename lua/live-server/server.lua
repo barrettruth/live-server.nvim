@@ -631,6 +631,11 @@ function S.reload(inst, css_only)
     )
   )
   sse_broadcast(inst, 'reload', payload)
+
+  vim.api.nvim_exec_autocmds('User', {
+    pattern = 'LiveServerReload',
+    data = { root = inst.root_real, css_only = use_css },
+  })
 end
 
 return S

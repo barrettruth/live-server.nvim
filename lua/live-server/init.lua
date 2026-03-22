@@ -121,6 +121,10 @@ local function init()
       for dir, inst in pairs(instances) do
         server.stop(inst)
         instances[dir] = nil
+        vim.api.nvim_exec_autocmds('User', {
+          pattern = 'LiveServerStopped',
+          data = { port = inst.port, root = inst.root_real },
+        })
       end
     end,
   })
@@ -196,6 +200,11 @@ function M.start(dir)
   instances[dir] = inst
   log(('started on 127.0.0.1:%d'):format(config.port), 'INFO')
 
+  vim.api.nvim_exec_autocmds('User', {
+    pattern = 'LiveServerStarted',
+    data = { port = config.port, root = root_real },
+  })
+
   if config.browser then
     vim.ui.open(('http://127.0.0.1:%d/'):format(config.port))
   end
@@ -206,9 +215,15 @@ function M.stop(dir)
   dir = resolve_dir(dir)
   local cached_dir = find_cached_dir(dir)
   if cached_dir and instances[cached_dir] then
-    server.stop(instances[cached_dir])
+    local inst = instances[cached_dir]
+    server.stop(inst)
     instances[cached_dir] = nil
     log('stopped', 'INFO')
+
+    vim.api.nvim_exec_autocmds('User', {
+      pattern = 'LiveServerStopped',
+      data = { port = inst.port, root = inst.root_real },
+    })
   end
 end
 

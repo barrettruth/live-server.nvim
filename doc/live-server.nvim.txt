@@ -1,24 +1,24 @@
-*live-server.txt*                          Live reload for web development
+*live-server.nvim.txt*                          Live reload for web development
 
-Author: Barrett Ruth <https://barrettruth.com>
-Homepage: <https://github.com/barrettruth/live-server.nvim>
+Author: Barrett Ruth <https://barrettruth.com> Homepage:
+<https://github.com/barrettruth/live-server.nvim>
 
-===============================================================================
-INTRODUCTION                                                *live-server.nvim*
+==============================================================================
+INTRODUCTION                                  *live-server* *live-server.nvim*
 
 live-server.nvim automatically reloads HTML, CSS, and JavaScript files in the
 browser via a local development server. No external dependencies required —
 the server runs entirely in Lua using Neovim's built-in libuv bindings.
 
-===============================================================================
+==============================================================================
 REQUIREMENTS                                        *live-server-requirements*
 
 - Neovim >= 0.10
 
-===============================================================================
-CONFIGURATION                                            *live-server-config*
+==============================================================================
+CONFIGURATION                                             *live-server-config*
 
-                                                          *vim.g.live_server*
+                                                           *vim.g.live_server*
 Configure via `vim.g.live_server` before the plugin loads: >lua
 
     vim.g.live_server = {
@@ -26,7 +26,7 @@ Configure via `vim.g.live_server` before the plugin loads: >lua
         browser = false,
     }
 <
-                                                         *live_server.Config*
+                                                          *live_server.Config*
 Fields: ~
 
     {port}      (`integer?`) Port for the HTTP server. Default: `5500`
@@ -40,8 +40,8 @@ Fields: ~
     {debug}     (`boolean?`) Log each step of the hot-reload chain via
                 `vim.notify()` at DEBUG level. Default: `false`
 
-===============================================================================
-COMMANDS                                               *live-server-commands*
+==============================================================================
+COMMANDS                                                *live-server-commands*
 
                                                             *:LiveServerStart*
 :LiveServerStart [dir]    Start the live server. If `dir` is provided, the
@@ -56,18 +56,18 @@ COMMANDS                                               *live-server-commands*
 :LiveServerToggle [dir]   Toggle the live server on or off. If `dir` is
                           provided, toggles the server in that directory.
 
-===============================================================================
-MAPPINGS                                               *live-server-mappings*
+==============================================================================
+MAPPINGS                                                *live-server-mappings*
 
-                                                    *<Plug>(live-server-start)*
+                                                   *<Plug>(live-server-start)*
 <Plug>(live-server-start)   Start the live server. Equivalent to
                             |:LiveServerStart| with no arguments.
 
-                                                     *<Plug>(live-server-stop)*
+                                                    *<Plug>(live-server-stop)*
 <Plug>(live-server-stop)    Stop the live server. Equivalent to
                             |:LiveServerStop| with no arguments.
 
-                                                   *<Plug>(live-server-toggle)*
+                                                  *<Plug>(live-server-toggle)*
 <Plug>(live-server-toggle)  Toggle the live server. Equivalent to
                             |:LiveServerToggle| with no arguments.
 
@@ -77,8 +77,8 @@ Example configuration: >lua
     vim.keymap.set('n', '<leader>lt', '<Plug>(live-server-toggle)')
 <
 
-===============================================================================
-API                                                        *live-server-api*
+==============================================================================
+API                                                          *live-server-api*
 
 All functions accept an optional `dir` parameter. When omitted, the directory
 of the current file is used.
@@ -107,22 +107,22 @@ live_server.setup({user_config})                         *live_server.setup()*
     Parameters: ~
         {user_config}  (|live_server.Config|?) Configuration table
 
-===============================================================================
-EVENTS                                                  *live-server-events*
+==============================================================================
+EVENTS                                                    *live-server-events*
 
-live-server.nvim fires `User` autocommands at key lifecycle points. Event
-data is available via `args.data` in the callback.
+live-server.nvim fires `User` autocommands at key lifecycle points. Event data
+is available via `args.data` in the callback.
 
-                                                       *LiveServerStarted*
+                                                           *LiveServerStarted*
 LiveServerStarted       Fired after the server starts listening.
                         Data: `{ port: integer, root: string }`
 
-                                                       *LiveServerStopped*
+                                                           *LiveServerStopped*
 LiveServerStopped       Fired after the server stops (including on
                         `VimLeavePre`).
                         Data: `{ port: integer, root: string }`
 
-                                                       *LiveServerReload*
+                                                            *LiveServerReload*
 LiveServerReload        Fired when a file change triggers a browser reload.
                         Data: `{ root: string, css_only: boolean }`
 
@@ -136,46 +136,42 @@ Example: >lua
     })
 <
 
-===============================================================================
-EXAMPLES                                               *live-server-examples*
+==============================================================================
+EXAMPLES                                                *live-server-examples*
 
 Start server in project root: >vim
 
     :LiveServerStart ~/projects/my-website
-<
-Lua keybinding to toggle server: >lua
+< Lua keybinding to toggle server: >lua
 
     vim.keymap.set('n', '<leader>ls', '<Plug>(live-server-toggle)')
-<
-Configuration with custom port and no auto-open: >lua
+< Configuration with custom port and no auto-open: >lua
 
     vim.g.live_server = {
         port = 3000,
         browser = false,
     }
-<
-Ignore node_modules and dotfiles: >lua
+< Ignore node_modules and dotfiles: >lua
 
     vim.g.live_server = {
         ignore = { 'node_modules', '^%.' },
     }
 <
-===============================================================================
-KNOWN LIMITATIONS                                  *live-server-limitations*
+==============================================================================
+KNOWN LIMITATIONS                                    *live-server-limitations*
 
 No Recursive File Watching on Linux ~
-                                              *live-server-linux-recursive*
+                                                 *live-server-linux-recursive*
 libuv's `uv_fs_event` only supports recursive directory watching on macOS
-(FSEvents) and Windows (ReadDirectoryChangesW). On Linux, the `recursive`
-flag is silently accepted but ignored because inotify does not support it
-natively. Only files directly in the served root directory trigger
-hot-reload; files in subdirectories (e.g. `css/style.css`) will not be
-detected.
+(FSEvents) and Windows (ReadDirectoryChangesW). On Linux, the `recursive` flag
+is silently accepted but ignored because inotify does not support it natively.
+Only files directly in the served root directory trigger hot-reload; files in
+subdirectories (e.g. `css/style.css`) will not be detected.
 
 See https://github.com/libuv/libuv/issues/1778
 
-Enable `debug` in |live-server-config| to verify whether `fs_event`
-callbacks fire for a given file change.
+Enable `debug` in |live-server-config| to verify whether `fs_event` callbacks
+fire for a given file change.
 
--------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 vim:tw=78:ft=help:norl:

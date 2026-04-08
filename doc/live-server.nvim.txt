@@ -26,6 +26,9 @@ Configure via `vim.g.live_server` before the plugin loads: >lua
         browser = false,
     }
 <
+The legacy `args` config and `require('live-server').setup()` API were removed
+in `v0.2.0`.
+
                                                           *live_server.Config*
 Fields: ~
 
@@ -100,12 +103,6 @@ live_server.toggle({dir})                               *live_server.toggle()*
 
     Parameters: ~
         {dir}  (`string?`) Directory to toggle
-
-live_server.setup({user_config})                         *live_server.setup()*
-    Deprecated: Use |vim.g.live_server| instead.
-
-    Parameters: ~
-        {user_config}  (|live_server.Config|?) Configuration table
 
 ==============================================================================
 EVENTS                                                    *live-server-events*

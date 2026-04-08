@@ -29,6 +29,8 @@ local defaults = {
 ---@type live_server.Config
 local config = vim.deepcopy(defaults)
 
+local init_error
+
 ---@param message string
 ---@param level string
 local function log(message, level)
@@ -60,14 +62,6 @@ local function migrate_args(user_config)
     return user_config
   end
 
-  vim.deprecate(
-    '`vim.g.live_server.args`',
-    '`:h live-server-config`',
-    'v0.2.0',
-    'live-server.nvim',
-    false
-  )
-
   local migrated = {}
   for k, v in pairs(user_config) do
     if k ~= 'args' then
@@ -75,33 +69,20 @@ local function migrate_args(user_config)
     end
   end
 
+  local unsupported = {}
   for _, arg in ipairs(user_config.args) do
-    local port = arg:match('%-%-port=(%d+)')
-    if port then
-      migrated.port = tonumber(port)
-    elseif arg == '--no-browser' then
-      migrated.browser = false
-    elseif arg == '--no-css-inject' then
-      migrated.css_inject = false
-    else
-      local wait = arg:match('%-%-wait=(%d+)')
-      if wait then
-        migrated.debounce = tonumber(wait)
-      else
-        local ignore_val = arg:match('%-%-ignore=(.*)')
-        if ignore_val then
-          migrated.ignore = migrated.ignore or {}
-          for pattern in ignore_val:gmatch('[^,]+') do
-            migrated.ignore[#migrated.ignore + 1] = vim.trim(pattern)
-          end
-        else
-          local flag = arg:match('^(%-%-[%w-]+)')
-          if flag and UNSUPPORTED_FLAGS[flag] then
-            log(('flag `%s` is not supported and will be ignored'):format(arg), 'WARN')
-          end
-        end
-      end
+    local flag = arg:match('^(%-%-[%w-]+)')
+    if flag and UNSUPPORTED_FLAGS[flag] then
+      unsupported[#unsupported + 1] = arg
     end
+  end
+
+  if #unsupported == 0 then
+    init_error = '`vim.g.live_server.args` was removed in v0.2.0. See `:h live-server-config`.'
+  else
+    init_error = ('`vim.g.live_server.args` was removed in v0.2.0. Unsupported flags were configured: %s. See `:h live-server-config`.'):format(
+      table.concat(unsupported, ', ')
+    )
   end
 
   return migrated
@@ -109,11 +90,17 @@ end
 
 local function init()
   if initialized then
-    return
+    return true
   end
+
+  init_error = nil
 
   local user_config = vim.g.live_server or {}
   user_config = migrate_args(user_config)
+  if init_error then
+    log(init_error, 'ERROR')
+    return false
+  end
   config = vim.tbl_deep_extend('force', defaults, user_config)
 
   vim.api.nvim_create_autocmd('VimLeavePre', {
@@ -130,6 +117,7 @@ local function init()
   })
 
   initialized = true
+  return true
 end
 
 ---@param dir? string
@@ -173,7 +161,9 @@ end
 
 ---@param dir? string
 function M.start(dir)
-  init()
+  if not init() then
+    return
+  end
 
   dir = resolve_dir(dir)
 
@@ -240,20 +230,15 @@ end
 ---@deprecated Use `vim.g.live_server` instead
 ---@param user_config? live_server.Config
 function M.setup(user_config)
-  vim.deprecate(
-    '`require("live-server").setup()`',
-    '`vim.g.live_server`',
-    'v0.1.0',
-    'live-server.nvim',
-    false
-  )
-
+  local hint = ''
   if user_config then
-    vim.g.live_server = vim.tbl_deep_extend('force', vim.g.live_server or {}, user_config)
+    hint = ' Move the provided table to `vim.g.live_server` before the plugin loads.'
   end
-
-  initialized = false
-  init()
+  log(
+    '`require("live-server").setup()` was removed in v0.2.0. Use `vim.g.live_server` instead.'
+      .. hint,
+    'ERROR'
+  )
 end
 
 return M

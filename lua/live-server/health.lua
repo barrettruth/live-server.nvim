@@ -20,12 +20,12 @@ function M.check()
 
   local user_config = vim.g.live_server or {}
   if user_config.args then
-    vim.health.warn(
-      'deprecated `args` config detected',
-      { 'See `:h live-server-config` for the new format' }
+    vim.health.error(
+      'removed `args` config detected',
+      { 'Use the keys documented in `:h live-server-config` instead' }
     )
   else
-    vim.health.ok('no deprecated config detected')
+    vim.health.ok('no removed config detected')
   end
 
   if jit.os == 'Linux' then

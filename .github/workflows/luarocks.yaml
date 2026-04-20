@@ -6,11 +6,11 @@ on:
       - "v*"
 
 jobs:
-  ci:
-    uses: ./.github/workflows/ci.yaml
+  quality:
+    uses: ./.github/workflows/quality.yaml
 
   publish:
-    needs: ci
+    needs: quality
     runs-on: ubuntu-latest
 
     steps:

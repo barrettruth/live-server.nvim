@@ -24,6 +24,7 @@
       devShells = forEachSystem (pkgs: {
         default = pkgs.mkShell {
           packages = [
+            pkgs.just
             (pkgs.luajit.withPackages (
               ps: with ps; [
                 busted
@@ -41,6 +42,7 @@
 
         ci = pkgs.mkShell {
           packages = [
+            pkgs.just
             (pkgs.luajit.withPackages (
               ps: with ps; [
                 busted

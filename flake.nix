@@ -29,7 +29,7 @@
                 nlua
               ]
             ))
-            pkgs.prettier
+            pkgs.biome
             pkgs.stylua
             pkgs.neovim
             pkgs.selene
@@ -47,7 +47,7 @@
                 nlua
               ]
             ))
-            pkgs.prettier
+            pkgs.biome
             pkgs.stylua
             pkgs.neovim
             pkgs.selene

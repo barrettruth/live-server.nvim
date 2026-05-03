@@ -1,0 +1,35 @@
+name: redirect-pr-to-forgejo
+
+on:
+  pull_request_target:
+    types: [opened, reopened]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  redirect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const forgejoUrl = `https://git.barrettruth.com/${context.repo.owner}/${context.repo.repo}`;
+            const body = [
+              'Thank you for the contribution.',
+              '',
+              `This GitHub repo is a read-only mirror. Please reopen this PR on [Forgejo](${forgejoUrl}).`,
+            ].join('\n');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: body,
+            });
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              state: 'closed',
+            });

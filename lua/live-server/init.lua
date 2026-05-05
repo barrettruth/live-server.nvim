@@ -1,4 +1,5 @@
 local server = require('live-server.server')
+local notify = require('live-server.log').notify
 
 local M = {}
 
@@ -34,7 +35,7 @@ local init_error
 ---@param message string
 ---@param level string
 local function log(message, level)
-  vim.notify(('live-server.nvim: %s'):format(message), vim.log.levels[level])
+  notify(message, vim.log.levels[level])
 end
 
 ---@type table<string, boolean>

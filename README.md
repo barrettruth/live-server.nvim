@@ -4,13 +4,27 @@ Live reload HTML, CSS, and JavaScript files inside Neovim. No external
 dependencies — the server runs entirely in Lua using Neovim's built-in libuv
 bindings.
 
+> [!NOTE]
+> Due to GitHub's historic unreliability, development, issues, and pull requests
+> have moved to [Forgejo](https://git.barrettruth.com/barrettruth/live-server.nvim).
+> See `:help live-server.nvim-migration` to optionally update your plugin source
+> configuration.
+
 ## Dependencies
 
 - Neovim >= 0.10
 
 ## Installation
 
-Install with your package manager or via
+With `vim.pack` (Neovim 0.12+):
+
+```lua
+vim.pack.add({
+  'https://git.barrettruth.com/barrettruth/live-server.nvim',
+})
+```
+
+Or via
 [luarocks](https://luarocks.org/modules/barrettruth/live-server.nvim):
 
 ```

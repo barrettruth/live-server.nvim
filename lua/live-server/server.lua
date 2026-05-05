@@ -1,4 +1,5 @@
 local uv = vim.uv
+local notify = require('live-server.log').notify
 
 ---@class live_server.Instance
 ---@field handle uv.uv_tcp_t
@@ -27,7 +28,7 @@ local function dbg(inst, msg)
     return
   end
   vim.schedule(function()
-    vim.notify(('[live-server] %s'):format(msg), vim.log.levels.DEBUG)
+    notify(msg, vim.log.levels.DEBUG)
   end)
 end
 

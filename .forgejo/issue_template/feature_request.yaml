@@ -8,7 +8,7 @@ body:
       label: Prerequisites
       options:
         - label: I have searched [existing
-            issues](https://github.com/barrettruth/live-server.nvim/issues)
+            issues](https://git.barrettruth.com/barrettruth/live-server.nvim/issues)
           required: true
 
   - type: textarea

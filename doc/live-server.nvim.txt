@@ -1,7 +1,21 @@
 *live-server.nvim.txt*                          Live reload for web development
 
-Author: Barrett Ruth <https://barrettruth.com> Homepage:
-<https://github.com/barrettruth/live-server.nvim>
+Author:  Barrett Ruth <br@barrettruth.com> License: GPL-3.0
+
+==============================================================================
+CONTENTS                                                *live-server-contents*
+
+  1. Introduction ........................................ |live-server.nvim|
+  2. Requirements ................................ |live-server-requirements|
+  3. Setup .............................................. |live-server-setup|
+  4. Migration .......................... |live-server.nvim-migration|
+  5. Configuration ................................. |live-server-config|
+  6. Commands ..................................... |live-server-commands|
+  7. Mappings ..................................... |live-server-mappings|
+  8. API ................................................. |live-server-api|
+  9. Events ........................................... |live-server-events|
+ 10. Examples ....................................... |live-server-examples|
+ 11. Known Limitations ....................... |live-server-limitations|
 
 ==============================================================================
 INTRODUCTION                                  *live-server* *live-server.nvim*
@@ -16,6 +30,39 @@ REQUIREMENTS                                        *live-server-requirements*
 - Neovim >= 0.10
 
 ==============================================================================
+SETUP                                                      *live-server-setup*
+
+With vim.pack (Neovim 0.12+): >lua
+    vim.pack.add({
+      'https://git.barrettruth.com/barrettruth/live-server.nvim',
+    })
+< With luarocks: >sh
+    luarocks install live-server.nvim
+< No `setup()` call is needed. Configure |vim.g.live_server| before using the
+plugin.
+
+==============================================================================
+MIGRATION                                         *live-server.nvim-migration*
+
+Due to GitHub's historic unreliability, development, issues, and pull requests
+have moved to: >
+    https://git.barrettruth.com/barrettruth/live-server.nvim
+<
+Use Forgejo for documentation, issues, pull requests, and active development.
+The GitHub repository remains available as a compatibility mirror.
+
+For vim.pack (Neovim 0.12+): >lua
+    vim.pack.add({
+      'https://git.barrettruth.com/barrettruth/live-server.nvim',
+    })
+< For package managers that accept an explicit source URL, replace GitHub
+shorthand with: >
+    https://git.barrettruth.com/barrettruth/live-server.nvim
+<
+If you prefer not to change the source URL immediately, pin a commit in your
+package manager for repeatable installs.
+
+==============================================================================
 CONFIGURATION                                             *live-server-config*
 
                                                            *vim.g.live_server*
@@ -25,9 +72,8 @@ Configure via `vim.g.live_server` before the plugin loads: >lua
         port = 8080,
         browser = false,
     }
-<
-The legacy `args` config and `require('live-server').setup()` API were removed
-in `v0.2.0`.
+< The legacy `args` config and `require('live-server').setup()` API were
+removed in `v0.2.0`.
 
                                                           *live_server.Config*
 Fields: ~

@@ -13,6 +13,10 @@ if vim.g.loaded_live_server then
 end
 vim.g.loaded_live_server = 1
 
+pcall(function()
+  require('live-server.migration').warn_if_github_source()
+end)
+
 vim.api.nvim_create_user_command('LiveServerStart', function(opts)
   require('live-server').start(opts.args)
 end, { nargs = '?' })

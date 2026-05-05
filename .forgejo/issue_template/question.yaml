@@ -1,0 +1,22 @@
+name: Question
+description: Ask a question about using live-server.nvim
+title: 'question: '
+labels: [question]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for usage questions or general discussion about live-server.nvim.
+        For bug reports, please use the bug report form instead.
+        For feature ideas, please use the feature request form instead.
+
+  - type: textarea
+    attributes:
+      label: Question
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Context
+      description: Relevant details such as Neovim version, operating system, config, or screenshots

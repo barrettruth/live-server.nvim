@@ -8,7 +8,7 @@ body:
       label: Prerequisites
       options:
         - label: I have searched [existing
-            issues](https://github.com/barrettruth/live-server.nvim/issues)
+            issues](https://git.barrettruth.com/barrettruth/live-server.nvim/issues)
           required: true
         - label: I have updated to the latest version
           required: true
@@ -63,15 +63,8 @@ body:
         Confirm the bug reproduces with this config before submitting.
       render: lua
       value: |
-        vim.env.LAZY_STDPATH = '.repro'
-        load(vim.fn.system('curl -s https://raw.githubusercontent.com/folke/lazy.nvim/main/bootstrap.lua'))()
-        require('lazy').setup({
-          spec = {
-            {
-              'barrett-ruth/live-server.nvim',
-              lazy = false,
-            },
-          },
+        vim.pack.add({
+          'https://git.barrettruth.com/barrettruth/live-server.nvim',
         })
     validations:
       required: true

@@ -1,0 +1,35 @@
+name: deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  luarocks:
+    name: LuaRocks
+    runs-on: nix
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate deploy ref
+        run: |
+          if ! [[ "$FORGEJO_REF" == refs/tags/v* ]]; then
+            echo "LuaRocks releases only run on v* tags; got $FORGEJO_REF" >&2
+            exit 1
+          fi
+
+      - name: Wait for quality
+        run: nix shell nixpkgs#curl nixpkgs#jq -c bash .forgejo/scripts/wait-for-quality.sh
+
+      - name: Publish to LuaRocks
+        uses: https://git.barrettruth.com/barrettruth/luarocks-tag-release-forgejo@v0.2.0
+        env:
+          LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
+        with:
+          license: GPL-3.0
+          verification_servers: |
+            https://luarocks.org
+            https://luarocks.org/manifests/barrettruth

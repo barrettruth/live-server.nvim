@@ -4,6 +4,7 @@ default:
 format:
     nix fmt -- --ci
     stylua --check .
+    vimdoc-language-server format --check doc/
     biome format .
 
 lint:

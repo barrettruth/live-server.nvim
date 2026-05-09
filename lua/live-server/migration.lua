@@ -13,7 +13,7 @@ local log = require('live-server.log')
 ---@type string
 local marker_name = 'github-source-migration-v1'
 ---@type string
-local migration_help = ':help live-server.nvim-migration'
+local migration_help = ':help live-server-migration'
 ---@type string
 local session_key = 'live_server_github_source_migration_warned'
 

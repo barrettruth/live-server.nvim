@@ -1,21 +1,22 @@
-*live-server.nvim.txt*                          Live reload for web development
+*live-server.txt* *live-server.nvim.txt*       Live reload for web development
 
 Author:  Barrett Ruth <br@barrettruth.com> License: GPL-3.0
 
 ==============================================================================
 CONTENTS                                                *live-server-contents*
 
-  1. Introduction ........................................ |live-server.nvim|
-  2. Requirements ................................ |live-server-requirements|
-  3. Setup .............................................. |live-server-setup|
-  4. Migration .......................... |live-server.nvim-migration|
-  5. Configuration ................................. |live-server-config|
-  6. Commands ..................................... |live-server-commands|
-  7. Mappings ..................................... |live-server-mappings|
-  8. API ................................................. |live-server-api|
-  9. Events ........................................... |live-server-events|
- 10. Examples ....................................... |live-server-examples|
- 11. Known Limitations ....................... |live-server-limitations|
+  1. Introduction .............................................. |live-server|
+  2. Requirements ................................. |live-server-requirements|
+  3. Setup ............................................... |live-server-setup|
+  4. Quick Start ................................... |live-server-quick-start|
+  5. Migration ....................................... |live-server-migration|
+  6. Configuration ...................................... |live-server-config|
+  7. Commands ......................................... |live-server-commands|
+  8. Mappings ......................................... |live-server-mappings|
+  9. API ................................................... |live-server-api|
+ 10. Events ............................................. |live-server-events|
+ 11. Examples ......................................... |live-server-examples|
+ 12. Known Limitations ............................. |live-server-limitations|
 
 ==============================================================================
 INTRODUCTION                                  *live-server* *live-server.nvim*
@@ -42,7 +43,32 @@ With vim.pack (Neovim 0.12+): >lua
 plugin.
 
 ==============================================================================
-MIGRATION                                         *live-server.nvim-migration*
+QUICK START                                          *live-server-quick-start*
+
+No setup call is required. Set |vim.g.live_server| before the plugin loads
+only when you want a non-default port or browser behavior: >lua
+
+    vim.g.live_server = {
+        port = 8080,
+        browser = false,
+    }
+< Open an HTML, CSS, or JavaScript file and start the server for that file's
+directory: >vim
+
+    :LiveServerStart
+< Start a specific project directory when the current buffer is elsewhere:
+>vim
+
+    :LiveServerStart ~/projects/my-website
+< Use one command to switch the same project on or off: >vim
+
+    :LiveServerToggle
+< Stop the server when you are done with the project: >vim
+
+    :LiveServerStop
+<
+==============================================================================
+MIGRATION                 *live-server-migration* *live-server.nvim-migration*
 
 Due to GitHub's historic unreliability, development, issues, and pull requests
 have moved to: >

@@ -8,7 +8,7 @@ bindings.
 > Due to GitHub's historic unreliability, active development is hosted on
 > [Forgejo](https://git.barrettruth.com/barrettruth/live-server.nvim).
 > GitHub is maintained as a read-only mirror.
-> See `:help live-server.nvim-migration` to optionally update your plugin source
+> See `:help live-server-migration` to optionally update your plugin source
 > configuration.
 
 ## Dependencies
@@ -32,10 +32,47 @@ Or via
 luarocks install live-server.nvim
 ```
 
+## Quick Start
+
+Set `vim.g.live_server` before the plugin loads only when you want to change
+the default port or browser behavior.
+
+```lua
+vim.g.live_server = {
+  port = 8080,
+  browser = false,
+}
+```
+
+Open an HTML, CSS, or JavaScript file and start the server for that file's
+directory.
+
+```vim
+:LiveServerStart
+```
+
+Start a specific project directory when the current buffer is elsewhere.
+
+```vim
+:LiveServerStart ~/projects/my-website
+```
+
+Use one command to switch the same project on or off.
+
+```vim
+:LiveServerToggle
+```
+
+Stop the server when you are done with the project.
+
+```vim
+:LiveServerStop
+```
+
 ## Documentation
 
 ```vim
-:help live-server.nvim
+:help live-server
 ```
 
 ## Known Limitations

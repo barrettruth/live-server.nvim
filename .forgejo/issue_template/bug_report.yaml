@@ -8,7 +8,7 @@ body:
       label: Prerequisites
       options:
         - label: I have searched [existing
-            issues](https://git.barrettruth.com/barrettruth/live-server.nvim/issues)
+            issues](https://forge.barrettruth.com/barrettruth/live-server.nvim/issues)
           required: true
         - label: I have updated to the latest version
           required: true
@@ -64,7 +64,7 @@ body:
       render: lua
       value: |
         vim.pack.add({
-          'https://git.barrettruth.com/barrettruth/live-server.nvim',
+          'https://forge.barrettruth.com/barrettruth/live-server.nvim',
         })
     validations:
       required: true

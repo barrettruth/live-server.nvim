@@ -3,12 +3,12 @@ package = 'live-server.nvim'
 version = 'scm-1'
 
 source = {
-  url = 'git+https://git.barrettruth.com/barrettruth/live-server.nvim.git',
+  url = 'git+https://forge.barrettruth.com/barrettruth/live-server.nvim.git',
 }
 
 description = {
   summary = 'Live reload local development servers inside Neovim',
-  homepage = 'https://git.barrettruth.com/barrettruth/live-server.nvim',
+  homepage = 'https://forge.barrettruth.com/barrettruth/live-server.nvim',
   license = 'GPL-3.0',
 }
 

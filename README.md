@@ -6,7 +6,7 @@ bindings.
 
 > [!NOTE]
 > Due to GitHub's historic unreliability, active development is hosted on
-> [Forgejo](https://git.barrettruth.com/barrettruth/live-server.nvim).
+> [Forgejo](https://forge.barrettruth.com/barrettruth/live-server.nvim).
 > GitHub is maintained as a read-only mirror.
 > See `:help live-server-migration` to optionally update your plugin source
 > configuration.
@@ -21,7 +21,7 @@ With `vim.pack` (Neovim 0.12+):
 
 ```lua
 vim.pack.add({
-  'https://git.barrettruth.com/barrettruth/live-server.nvim',
+  'https://forge.barrettruth.com/barrettruth/live-server.nvim',
 })
 ```
 

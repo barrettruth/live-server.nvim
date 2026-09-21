@@ -35,7 +35,7 @@ SETUP                                                      *live-server-setup*
 
 With vim.pack (Neovim 0.12+): >lua
     vim.pack.add({
-      'https://git.barrettruth.com/barrettruth/live-server.nvim',
+      'https://forge.barrettruth.com/barrettruth/live-server.nvim',
     })
 < With luarocks: >sh
     luarocks install live-server.nvim
@@ -72,18 +72,18 @@ MIGRATION                 *live-server-migration* *live-server.nvim-migration*
 
 Due to GitHub's historic unreliability, development, issues, and pull requests
 have moved to: >
-    https://git.barrettruth.com/barrettruth/live-server.nvim
+    https://forge.barrettruth.com/barrettruth/live-server.nvim
 <
 Use Forgejo for documentation, issues, pull requests, and active development.
 The GitHub repository remains available as a compatibility mirror.
 
 For vim.pack (Neovim 0.12+): >lua
     vim.pack.add({
-      'https://git.barrettruth.com/barrettruth/live-server.nvim',
+      'https://forge.barrettruth.com/barrettruth/live-server.nvim',
     })
 < For package managers that accept an explicit source URL, replace GitHub
 shorthand with: >
-    https://git.barrettruth.com/barrettruth/live-server.nvim
+    https://forge.barrettruth.com/barrettruth/live-server.nvim
 <
 If you prefer not to change the source URL immediately, pin a commit in your
 package manager for repeatable installs.

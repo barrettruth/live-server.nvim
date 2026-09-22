@@ -36,8 +36,12 @@ end
 ---@param root string
 ---@return string|nil
 function M.origin(root)
-  local origin = vim.fn.system({ 'git', '-C', root, 'config', '--get', 'remote.origin.url' })
-  if vim.v.shell_error ~= 0 then
+  if vim.fn.executable('git') ~= 1 then
+    return nil
+  end
+
+  local ok, origin = pcall(vim.fn.system, { 'git', '-C', root, 'config', '--get', 'remote.origin.url' })
+  if not ok or vim.v.shell_error ~= 0 then
     return nil
   end
 

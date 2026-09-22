@@ -4,10 +4,6 @@ Live reload HTML, CSS, and JavaScript files inside Neovim. No external
 dependencies — the server runs entirely in Lua using Neovim's built-in libuv
 bindings.
 
-> [!NOTE]
-> Active development is hosted on
-> [Forgejo](https://forge.barrettruth.com/barrettruth/live-server.nvim).
-
 ## Dependencies
 
 - Neovim >= 0.10

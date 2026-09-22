@@ -5,11 +5,8 @@ dependencies — the server runs entirely in Lua using Neovim's built-in libuv
 bindings.
 
 > [!NOTE]
-> Due to GitHub's historic unreliability, active development is hosted on
+> Active development is hosted on
 > [Forgejo](https://forge.barrettruth.com/barrettruth/live-server.nvim).
-> GitHub is maintained as a read-only mirror.
-> See `:help live-server-migration` to optionally update your plugin source
-> configuration.
 
 ## Dependencies
 

@@ -37,8 +37,6 @@ With vim.pack (Neovim 0.12+): >lua
     vim.pack.add({
       'https://forge.barrettruth.com/barrettruth/live-server.nvim',
     })
-< With luarocks: >sh
-    luarocks install live-server.nvim
 < No `setup()` call is needed. Configure |vim.g.live_server| before using the
 plugin.
 

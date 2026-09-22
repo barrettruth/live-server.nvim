@@ -23,12 +23,6 @@ vim.pack.add({
 ```
 
 Or via
-[luarocks](https://luarocks.org/modules/barrettruth/live-server.nvim):
-
-```
-luarocks install live-server.nvim
-```
-
 ## Quick Start
 
 Set `vim.g.live_server` before the plugin loads only when you want to change

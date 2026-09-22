@@ -70,18 +70,12 @@ directory: >vim
 ==============================================================================
 MIGRATION                 *live-server-migration* *live-server.nvim-migration*
 
-Due to GitHub's historic unreliability, development, issues, and pull requests
-have moved to: >
-    https://forge.barrettruth.com/barrettruth/live-server.nvim
-<
-Use Forgejo for documentation, issues, pull requests, and active development.
-The GitHub repository remains available as a compatibility mirror.
-
-For vim.pack (Neovim 0.12+): >lua
+live-server.nvim will be removed from GitHub on October 31, 2026. Update your
+plugin source to Forgejo: >lua
     vim.pack.add({
       'https://forge.barrettruth.com/barrettruth/live-server.nvim',
     })
-< For package managers that accept an explicit source URL, replace GitHub
+< For package managers that accept an explicit source URL, replace the GitHub
 shorthand with: >
     https://forge.barrettruth.com/barrettruth/live-server.nvim
 <

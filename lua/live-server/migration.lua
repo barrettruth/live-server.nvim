@@ -40,7 +40,8 @@ function M.origin(root)
     return nil
   end
 
-  local ok, origin = pcall(vim.fn.system, { 'git', '-C', root, 'config', '--get', 'remote.origin.url' })
+  local ok, origin =
+    pcall(vim.fn.system, { 'git', '-C', root, 'config', '--get', 'remote.origin.url' })
   if not ok or vim.v.shell_error ~= 0 then
     return nil
   end

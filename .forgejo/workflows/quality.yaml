@@ -14,11 +14,11 @@ jobs:
     steps:
       - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Format
-        run: nix develop .#ci --command just format
+        run: nix develop --command just format
   lint:
     name: Lint
     runs-on: nix
     steps:
       - uses: https://data.forgejo.org/actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: Lint
-        run: nix develop .#ci --command just lint
+        run: nix develop --command just lint

@@ -21,24 +21,7 @@
 
       devShells = forEachSystem (pkgs: {
         default = pkgs.mkShell {
-          packages = [
-            pkgs.just
-            (pkgs.luajit.withPackages (
-              ps: with ps; [
-                busted
-                nlua
-              ]
-            ))
-            pkgs.biome
-            pkgs.stylua
-            pkgs.neovim
-            pkgs.selene
-            pkgs.lua-language-server
-            pkgs.vimdoc-language-server
-          ];
-        };
-
-        ci = pkgs.mkShell {
+          VIMRUNTIME = "${pkgs.neovim}/share/nvim/runtime";
           packages = [
             pkgs.just
             (pkgs.luajit.withPackages (

@@ -19,8 +19,9 @@
     {
       formatter = forEachSystem (pkgs: pkgs.nixfmt-tree);
 
-      devShells = forEachSystem (pkgs: {
+      devShells = forEachSystem (pkgs: rec {
         default = pkgs.mkShell {
+          VIMRUNTIME = "${pkgs.neovim.unwrapped}/share/nvim/runtime";
           packages = [
             pkgs.just
             (pkgs.luajit.withPackages (
@@ -38,23 +39,7 @@
           ];
         };
 
-        ci = pkgs.mkShell {
-          packages = [
-            pkgs.just
-            (pkgs.luajit.withPackages (
-              ps: with ps; [
-                busted
-                nlua
-              ]
-            ))
-            pkgs.biome
-            pkgs.stylua
-            pkgs.neovim
-            pkgs.selene
-            pkgs.lua-language-server
-            pkgs.vimdoc-language-server
-          ];
-        };
+        ci = default;
       });
     };
 }

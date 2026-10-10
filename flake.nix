@@ -19,9 +19,9 @@
     {
       formatter = forEachSystem (pkgs: pkgs.nixfmt-tree);
 
-      devShells = forEachSystem (pkgs: rec {
+      devShells = forEachSystem (pkgs: {
         default = pkgs.mkShell {
-          VIMRUNTIME = "${pkgs.neovim.unwrapped}/share/nvim/runtime";
+          VIMRUNTIME = "${pkgs.neovim}/share/nvim/runtime";
           packages = [
             pkgs.just
             (pkgs.luajit.withPackages (
@@ -38,8 +38,6 @@
             pkgs.vimdoc-language-server
           ];
         };
-
-        ci = default;
       });
     };
 }

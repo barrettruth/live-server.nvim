@@ -489,7 +489,13 @@ local function on_connection(inst, err)
     return
   end
   local sock = uv.new_tcp()
-  inst.handle:accept(sock)
+  if not sock then
+    return
+  end
+  if not inst.handle:accept(sock) then
+    sock:close()
+    return
+  end
 
   local buf = ''
   sock:read_start(function(read_err, data)
@@ -562,10 +568,17 @@ local function setup_file_watcher(inst)
 end
 
 ---@param cfg live_server.StartConfig
----@return live_server.Instance
+---@return live_server.Instance?, string?
 function S.start(cfg)
-  local handle = uv.new_tcp()
-  handle:bind('127.0.0.1', cfg.port)
+  local handle, err = uv.new_tcp()
+  if not handle then
+    return nil, err or 'could not create TCP listener'
+  end
+  local debounce_timer, timer_err = uv.new_timer()
+  if not debounce_timer then
+    handle:close()
+    return nil, timer_err or 'could not create debounce timer'
+  end
 
   ---@type live_server.Instance
   local inst = {
@@ -573,7 +586,7 @@ function S.start(cfg)
     port = cfg.port,
     root_real = cfg.root_real,
     sse_clients = {},
-    debounce_timer = uv.new_timer(),
+    debounce_timer = debounce_timer,
     fs_event = nil,
     ignore_patterns = cfg.ignore or {},
     debounce_ms = cfg.debounce or 120,
@@ -581,9 +594,16 @@ function S.start(cfg)
     debug = cfg.debug or false,
   }
 
-  handle:listen(128, function(listen_err)
-    on_connection(inst, listen_err)
-  end)
+  local ok, start_err = handle:bind('127.0.0.1', cfg.port)
+  if ok then
+    ok, start_err = handle:listen(128, function(listen_err)
+      on_connection(inst, listen_err)
+    end)
+  end
+  if not ok then
+    S.stop(inst)
+    return nil, start_err
+  end
 
   setup_file_watcher(inst)
 

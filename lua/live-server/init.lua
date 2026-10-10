@@ -179,7 +179,7 @@ function M.start(dir)
     return
   end
 
-  local inst = server.start({
+  local inst, err = server.start({
     port = config.port,
     root_real = root_real,
     debounce = config.debounce,
@@ -187,6 +187,10 @@ function M.start(dir)
     css_inject = config.css_inject,
     debug = config.debug,
   })
+  if not inst then
+    log(err or 'could not start server', 'ERROR')
+    return
+  end
 
   instances[dir] = inst
   log(('started on 127.0.0.1:%d'):format(config.port), 'INFO')

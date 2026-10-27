@@ -14,11 +14,10 @@ With `vim.pack` (Neovim 0.12+):
 
 ```lua
 vim.pack.add({
-  'https://forge.barrettruth.com/barrettruth/live-server.nvim',
+  'https://github.com/barrettruth/live-server.nvim',
 })
 ```
 
-Or via
 ## Quick Start
 
 Set `vim.g.live_server` before the plugin loads only when you want to change

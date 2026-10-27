@@ -9,14 +9,13 @@ CONTENTS                                                *live-server-contents*
   2. Requirements ................................. |live-server-requirements|
   3. Setup ............................................... |live-server-setup|
   4. Quick Start ................................... |live-server-quick-start|
-  5. Migration ....................................... |live-server-migration|
-  6. Configuration ...................................... |live-server-config|
-  7. Commands ......................................... |live-server-commands|
-  8. Mappings ......................................... |live-server-mappings|
-  9. API ................................................... |live-server-api|
- 10. Events ............................................. |live-server-events|
- 11. Examples ......................................... |live-server-examples|
- 12. Known Limitations ............................. |live-server-limitations|
+  5. Configuration ...................................... |live-server-config|
+  6. Commands ......................................... |live-server-commands|
+  7. Mappings ......................................... |live-server-mappings|
+  8. API ................................................... |live-server-api|
+  9. Events ............................................. |live-server-events|
+ 10. Examples ......................................... |live-server-examples|
+ 11. Known Limitations ............................. |live-server-limitations|
 
 ==============================================================================
 INTRODUCTION                                  *live-server* *live-server.nvim*
@@ -35,7 +34,7 @@ SETUP                                                      *live-server-setup*
 
 With vim.pack (Neovim 0.12+): >lua
     vim.pack.add({
-      'https://forge.barrettruth.com/barrettruth/live-server.nvim',
+      'https://github.com/barrettruth/live-server.nvim',
     })
 < No `setup()` call is needed. Configure |vim.g.live_server| before using the
 plugin.
@@ -65,21 +64,6 @@ directory: >vim
 
     :LiveServerStop
 <
-==============================================================================
-MIGRATION                 *live-server-migration* *live-server.nvim-migration*
-
-live-server.nvim will be removed from GitHub on October 31, 2026. Update your
-plugin source to Forgejo: >lua
-    vim.pack.add({
-      'https://forge.barrettruth.com/barrettruth/live-server.nvim',
-    })
-< For package managers that accept an explicit source URL, replace the GitHub
-shorthand with: >
-    https://forge.barrettruth.com/barrettruth/live-server.nvim
-<
-If you prefer not to change the source URL immediately, pin a commit in your
-package manager for repeatable installs.
-
 ==============================================================================
 CONFIGURATION                                             *live-server-config*
 

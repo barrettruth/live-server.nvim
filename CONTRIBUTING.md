@@ -1,7 +1,7 @@
 # Contributing
 
 Development, issues, and pull requests happen on
-[Forgejo](https://forge.barrettruth.com/barrettruth/live-server.nvim).
+[GitHub](https://github.com/barrettruth/live-server.nvim).
 
 ## Scope
 

@@ -1,6 +1,6 @@
 *live-server.txt* *live-server.nvim.txt*       Live reload for web development
 
-Author:  Barrett Ruth <br@barrettruth.com> License: GPL-3.0
+Author:  Barrett Ruth <br@barrettruth.com> License: ISC
 
 ==============================================================================
 CONTENTS                                                *live-server-contents*
